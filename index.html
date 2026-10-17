@@ -327,29 +327,34 @@ function drawSnowman(g,x,y,scarf){
   sprite(g,x,y,[[3,8,10,7,'#ffffff'],[5,2,6,6,'#ffffff'],[5,0,6,2,'#222233']],
     [[6,4,1,1,'#222'],[9,4,1,1,'#222'],[7,5,3,1,'#ff8a2a'],[5,7,6,1,scarf],[7,10,1,1,'#222'],[7,12,1,1,'#222'],[4,1,8,1,'#222233'],[4,13,8,2,'#dfe8f6']],'#3a4a6a',false);
 }
-/* Payasitos en concierto: Lagrimita (canta con micrófono, lagrimita azul) y Costel (toca la guitarra, peluca verde) */
+/* L & C Show: payasito de gorra negra, pelo largo, maquillaje blanco y saco blanco y negro (canta con micrófono)
+   y su compañero de copete negro, camisa roja y pantalón negro (señala al público) */
 function drawClown(g,x,y,who,t){
-  const ox=Math.round(x), oy=Math.round(y)-((Math.floor(t*4)+(who==='costel'?1:0))%2), K='#1a1024', Wf='#ffffff';
-  const sing=Math.sin(t*6+(who==='costel'?1.5:0))>0;
+  const K='#141018', ox=Math.round(x), beat=(Math.floor(t*4)+(who==='c'?1:0))%2, oy=Math.round(y)-beat;
+  const sing=Math.sin(t*6+(who==='c'?1.5:0))>0;
   rect(g,ox+3,Math.round(y)+21,10,2,'rgba(0,0,0,0.3)');
-  if(who==='lagrimita'){
-    const C='#ffd23a',D='#e8a020', up=Math.sin(t*2)>-0.3;
-    const p=[[2,20,5,3,'#e83a3a'],[9,20,5,3,'#e83a3a'],[3,15,10,6,C],[3,9,10,7,C],[1,10,2,5,C],[4,2,8,8,Wf],[1,3,4,5,'#ff7a2a'],[11,3,4,5,'#ff7a2a'],[4,0,8,2,'#2a2030'],[6,-3,4,4,'#2a2030']];
-    p.push(up?[13,4,2,6,C]:[13,10,2,5,C]);
-    const q=[[5,4,2,1,K],[9,4,2,1,K],[5,5,1,1,K],[10,5,1,1,K],[7,6,2,2,'#ff2a2a'],[10,6,1,2,'#3a8ae8'],[5,7,1,1,'#ffaab8'],
-      [4,9,8,1,Wf],[5,9,1,1,'#ff7ab0'],[8,9,1,1,'#ff7ab0'],[11,9,1,1,'#ff7ab0'],[5,11,1,1,'#e83a3a'],[9,12,1,1,'#3a8ae8'],[7,14,1,1,'#e83a3a'],[11,16,1,1,'#3a8ae8'],[4,18,1,1,'#e83a3a'],
-      [3,15,10,1,D],[1,15,2,1,Wf],[9,0,2,1,'#ff5a8a'],[6,-2,4,1,'#4a3a5a']];
-    q.push(sing?[6,8,4,2,'#c8203a']:[7,8,2,1,'#c8203a']);
-    if(up) q.push([13,3,2,2,Wf],[13,1,2,2,'#3a3a44'],[13,0,2,1,'#8a8a9a']); else q.push([13,14,2,1,Wf],[13,12,2,2,'#3a3a44']);
+  if(who==='l'){
+    const J='#f2f2f2', RD='#d8202a', up=Math.sin(t*2)>-0.3;
+    const p=[[3,21,4,2,K],[9,21,4,2,K],[3,15,10,6,RD],[2,3,12,10,'#121016'],[3,9,10,7,J],[1,10,2,6,J],[4,2,8,8,'#ffffff'],[3,0,10,3,K],[2,2,12,1,K]];
+    p.push(up?[13,4,2,7,J]:[13,10,2,6,J]);
+    const q=[];
+    for(let yy=9;yy<16;yy++) for(let xx=1;xx<15;xx++){   // saco con estampado blanco y negro
+      const onBody=xx>=3&&xx<13&&!(xx>=6&&xx<10), onArm=(xx<3&&yy>=10)||(xx>=13&&!up&&yy>=10);
+      if((onBody||onArm)&&(xx+yy*2)%4<2) q.push([xx,yy,1,1,K]);}
+    q.push([6,10,4,6,RD],[7,10,2,1,'#ffffff'],[8,17,1,4,'#a8101a'],[1,15,2,1,'#ffffff'],
+      [5,5,1,2,K],[10,5,1,2,K],[5,4,2,1,K],[9,4,2,1,K],[5,7,1,1,'#e83a3a'],[10,7,1,1,'#e83a3a'],[7,6,2,2,'#e8202a'],[4,3,8,1,'#2a2430']);
+    q.push(sing?[6,8,4,2,'#c8102a']:[6,9,4,1,'#c8102a']);
+    if(up) q.push([13,3,2,2,'#ffffff'],[13,1,2,2,'#3a3a44'],[13,0,2,1,'#8a8a9a']); else q.push([13,15,2,1,'#ffffff'],[13,13,2,2,'#3a3a44']);
     sprite(g,ox,oy,p,q,K,false);
   } else {
-    const C='#3a6ad8', strum=Math.floor(t*8)%2;
-    const p=[[2,20,5,3,'#e83a3a'],[9,20,5,3,'#e83a3a'],[3,15,10,6,C],[3,9,10,7,C],[1,10,2,5,C],[13,10,2,5,C],[4,2,8,8,Wf],[1,1,4,6,'#3ac84a'],[11,1,4,6,'#3ac84a'],[4,0,8,2,'#3ac84a'],[0,3,2,3,'#3ac84a'],[14,3,2,3,'#3ac84a']];
-    const q=[[5,5,1,1,K],[10,5,1,1,K],[5,3,1,1,'#3a8ae8'],[10,3,1,1,'#3a8ae8'],[7,6,2,2,'#ff2a2a'],[5,8,6,1,'#e8203a'],[4,7,1,1,'#e8203a'],[11,7,1,1,'#e8203a'],
-      [3,11,10,1,Wf],[3,13,10,1,Wf],[3,17,10,1,Wf],[5,9,6,2,'#ffd23a'],[7,9,2,2,'#e8a020'],[5,1,2,1,'#7ae87a'],[10,0,2,1,'#7ae87a']];
-    if(sing) q.push([6,8,4,1,'#ffffff']);
-    // guitarra
-    q.push([2,13,6,5,'#c8783a'],[3,14,4,3,'#e09a5a'],[4,15,2,1,'#3a1a0a'],[8,13,6,1,'#7a4a1a'],[13,12,2,2,'#5a3010'],[5,13+strum,3,1,Wf],[1,14,2,1,Wf]);
+    const RD='#d8202a', SK='#f2c8a6', point=Math.sin(t*3)>0;
+    const p=[[3,21,4,2,K],[9,21,4,2,K],[3,15,10,6,'#1a1a22'],[3,9,10,7,RD],[4,2,8,8,SK],[3,0,10,3,'#121016'],[5,-2,7,2,'#121016'],[3,2,1,3,'#121016'],[12,2,1,3,'#121016'],
+      [1,5,2,7,RD]];
+    p.push(point?[13,9,5,2,RD]:[13,6,2,6,RD]);
+    const q=[[6,-1,4,1,'#3a3644'],[5,5,1,1,K],[10,5,1,1,K],[5,4,2,1,'#3a2a2a'],[9,4,2,1,'#3a2a2a'],[7,7,2,1,'#d8a080'],[7,9,2,2,SK],[5,15,6,1,'#2a2a34'],[8,16,1,5,'#2a2a34'],
+      [1,3,2,2,'#3a3a44'],[1,2,2,1,'#8a8a9a'],[1,12,2,1,SK]];
+    q.push(sing?[6,8,4,1,'#a83a3a']:[7,8,2,1,'#a83a3a']);
+    if(point) q.push([18,9,2,1,SK],[17,10,1,1,SK]); else q.push([13,5,2,1,SK]);
     sprite(g,ox,oy,p,q,K,false);
   }
 }
@@ -903,18 +908,17 @@ ROOMS.sala5={
   panel:()=>qPanel('sala5'),
   setup(R,rm){
     qDoors(R,'sala5',[2,9,16],[{type:'tent',c1:'#e83a4a',c2:'#ffffff'},{type:'tent',c1:'#3a7ae8',c2:'#ffffff'},{type:'tent',c1:'#9a4ad8',c2:'#ffd23a'}]);
-    R.solid(1,7,3,3); R.interact(1,7,3,3,()=>Dialog.open(['¡Gana un osito para tu pareja!','(Los ositos de peluche tienen corazones bordados.)']));
+    R.solid(1,7,3,3); R.interact(1,7,3,3,()=>Dialog.open(['¡El L & C Show está dando un concierto en la feria!','*Le cantan una canción de amor a todas las parejitas* <3']));
+    R.static(152,(g,t)=>{drawClown(g,23,128,'l',t);drawClown(g,40,128,'c',t);});
+    R.light(40,150,30,'rgba(255,210,140,0.3)',1);
     R.solid(16,7,3,3); R.interact(16,7,3,3,()=>Dialog.open(['¡Algodón de azúcar para los enamorados!']));
-    R.solid(18,12); R.solid(15,12); R.interact(15,12,1,1,()=>Dialog.open(['(Un montón de globos con forma de corazón.)']));
-    R.solid(1,11,4,3); R.interact(1,11,4,3,()=>Dialog.open(['¡Lagrimita y Costel están dando un concierto en la feria!','*Le cantan una canción de amor a todas las parejitas* <3']));
-    R.static(206,(g,t)=>{drawClown(g,26,186,'lagrimita',t);drawClown(g,53,186,'costel',t);});
-    R.light(48,196,38,'rgba(255,210,140,0.5)',1);
+    R.solid(4,12); R.solid(15,12); R.interact(15,12,1,1,()=>Dialog.open(['(Un montón de globos con forma de corazón.)']));
     R.solid(11,12); R.interact(11,12,1,1,qSign('sala5'));
     R.walker(makeCouple(5,11,[[5,6],[5,11]],NP[4],NP[5],['¡La rueda de la fortuna es lo mejor de la feria!']));
     R.walker(makeCouple(13,6,[[13,11],[13,6]],NP[2],NP[1],['Nos besamos por primera vez aquí... <3']));
     rm.stars=mkStars(60,0,0,320,60,55);
     R.light(160,30,50,'rgba(255,120,200,0.35)',1);
-    for(const x of [24,40,56,264,280,296]) R.light(x,116,22,'rgba(255,220,120,0.45)',1);
+    for(const x of [264,280,296]) R.light(x,116,22,'rgba(255,220,120,0.45)',1);
     for(const x of [48,160,272]) R.light(x,72,26,'rgba(255,180,90,0.45)',1);
   },
   bg(g){
@@ -932,17 +936,16 @@ ROOMS.sala5={
       else for(let i=0;i<4;i++){const bx=x+8+i*10;pxCircle(g,bx,134,4,['#ffb0d8','#b0e0ff','#fff0a0','#ffb0d8'][i]);rect(g,bx,138,1,7,'#ddd');}
       rect(g,x,146,48,14,'#c88a4a');rect(g,x,146,48,2,'#e8aa6a');rect(g,x,158,48,2,'#8a5a2a');
       for(let i=0;i<8;i++){rect(g,x+i*6,112,6,12,i%2?c1:c2);pxCircle(g,x+i*6+3,124,3,i%2?c1:c2);}};
-    stall(16,'#e83a4a','#ffffff','bear'); stall(256,'#ff7ab0','#ffffff','candy');
-    rect(g,290,198,12,14,'#e8e0f0'); rect(g,288,196,16,4,'#ff7ab0'); pxCircle(g,296,192,5,'#ffb0d8'); rect(g,290,210,2,4,'#333'); rect(g,300,210,2,4,'#333');
-    // escenario del concierto de payasitos
-    rect(g,17,167,62,18,'#1a1028'); rect(g,18,168,60,16,'#a01a3a');
-    for(let x=20;x<78;x+=6) rect(g,x,168,2,16,'#c8284a');
-    rect(g,18,168,60,3,'#ffd23a'); rect(g,18,171,60,1,'#c89020');
-    plaque(g,48,156,'SHOW!',{bg:'#ffd23a',sh:'#e0a820',fg:'#a01a3a',ol:'#3a1a00'});
-    rect(g,16,184,64,38,'#3a1e0e'); rect(g,17,185,62,30,'#a86a3a');
-    for(let y=187;y<215;y+=5) rect(g,17,y,62,1,'#8a5228');
-    rect(g,17,215,62,7,'#7a1a2a'); for(let x=19;x<78;x+=6) rect(g,x,216,3,5,'#a02a3a');
-    for(const sx of [17,72]){rect(g,sx,196,7,14,'#1a1a22');rect(g,sx+1,197,5,12,'#2a2a34');pxCircle(g,sx+3,201,2,'#5a5a6a');pxCircle(g,sx+3,206,1,'#5a5a6a');}
+    stall(256,'#ff7ab0','#ffffff','candy');
+    rect(g,66,198,12,14,'#e8e0f0'); rect(g,64,196,16,4,'#ff7ab0'); pxCircle(g,72,192,5,'#ffb0d8'); rect(g,66,210,2,4,'#333'); rect(g,76,210,2,4,'#333');
+    // escenario del L & C Show (en el lugar del antiguo puesto de ositos)
+    rect(g,15,111,50,50,'#1a1028');
+    rect(g,16,112,48,20,'#a01a3a'); for(let x=18;x<64;x+=6) rect(g,x,112,2,20,'#c8284a');
+    rect(g,16,112,48,3,'#ffd23a'); rect(g,16,115,48,1,'#c89020');
+    rect(g,16,132,48,22,'#a86a3a'); for(let y=134;y<154;y+=5) rect(g,16,y,48,1,'#8a5228');
+    rect(g,16,154,48,6,'#7a1a2a'); for(let x=18;x<63;x+=6) rect(g,x,155,3,4,'#a02a3a');
+    for(const sx of [16,58]){rect(g,sx,128,6,13,'#1a1a22');rect(g,sx+1,129,4,11,'#2a2a34');pxCircle(g,sx+3,132,1,'#5a5a6a');pxCircle(g,sx+3,137,1,'#5a5a6a');}
+    plaque(g,50,99,'L & C SHOW',{bg:'#ffd23a',sh:'#e0a820',fg:'#a01a3a',ol:'#3a1a00'});
     signPost(g,11,12,'q');
   },
   back(g,t,rm){
@@ -963,7 +966,7 @@ ROOMS.sala5={
   },
   top(g,t,rm){for(const w of rm.walkers) floatHeart(g,w.px+12,w.py-26,t,w.x);},
   emit(dt){if(Math.random()<dt*1.5)spawnP({type:'spark',x:134+Math.random()*52,y:4+Math.random()*52,life:1,max:1,c:['#fff6a0','#ff9ac8','#6ae0ff'][Math.floor(Math.random()*3)]});
-    if(Math.random()<dt*1.6)spawnP({type:'note',x:26+Math.random()*40,y:180,vy:-14,vx:(Math.random()-0.3)*10,life:2.2,max:2.2,c:['#ffd23a','#ff9ac8','#ffffff','#6ae0ff'][Math.floor(Math.random()*4)]});},
+    if(Math.random()<dt*1.6)spawnP({type:'note',x:20+Math.random()*40,y:124,vy:-14,vx:(Math.random()-0.3)*10,life:2.2,max:2.2,c:['#ffd23a','#ff9ac8','#ffffff','#6ae0ff'][Math.floor(Math.random()*4)]});},
   enter:qEnter('sala5')
 };
 
@@ -1542,7 +1545,7 @@ const DECOR={
   sala2:[dc(89,9,'#ff9ac8','#9ad8ff'),dc(230,9,'#ffd23a','#ff9ac8'),muela(28,104),muela(282,150)],
   sala3:[dc(124,6,'#ffd23a','#ff6a8a'),dc(196,6,'#ff6a8a','#ffd23a'),muela(56,140)],
   sala4:[dc(204,70,'#ff9ac8','#ffd23a'),muela(44,94),muela(140,198)],
-  sala5:[dc(72,108,'#ff9ac8','#9ad8ff'),dc(248,108,'#ffd23a','#c87aff'),muela(122,150),muela(196,168)],
+  sala5:[dc(248,108,'#ffd23a','#c87aff'),muela(122,150),muela(196,168)],
   sala6:[dc(78,72,'#c8a0ff','#7ac8ff'),dc(244,88,'#ff9ad8','#fff3a0'),muela(52,150),muela(262,178)],
   sala7:[dc(24,78,'#ff9ad8','#7ae8ff'),dc(296,78,'#7ae8ff','#ff9ad8'),muela(68,124),muela(240,126)],
   sala8:[dc(24,78,'#ff9ad8','#7ae8ff'),dc(296,78,'#7ae8ff','#ff9ad8'),muela(68,124),muela(240,126)],
