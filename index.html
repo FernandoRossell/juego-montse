@@ -327,6 +327,32 @@ function drawSnowman(g,x,y,scarf){
   sprite(g,x,y,[[3,8,10,7,'#ffffff'],[5,2,6,6,'#ffffff'],[5,0,6,2,'#222233']],
     [[6,4,1,1,'#222'],[9,4,1,1,'#222'],[7,5,3,1,'#ff8a2a'],[5,7,6,1,scarf],[7,10,1,1,'#222'],[7,12,1,1,'#222'],[4,1,8,1,'#222233'],[4,13,8,2,'#dfe8f6']],'#3a4a6a',false);
 }
+/* Payasitos en concierto: Lagrimita (canta con micrófono, lagrimita azul) y Costel (toca la guitarra, peluca verde) */
+function drawClown(g,x,y,who,t){
+  const ox=Math.round(x), oy=Math.round(y)-((Math.floor(t*4)+(who==='costel'?1:0))%2), K='#1a1024', Wf='#ffffff';
+  const sing=Math.sin(t*6+(who==='costel'?1.5:0))>0;
+  rect(g,ox+3,Math.round(y)+21,10,2,'rgba(0,0,0,0.3)');
+  if(who==='lagrimita'){
+    const C='#ffd23a',D='#e8a020', up=Math.sin(t*2)>-0.3;
+    const p=[[2,20,5,3,'#e83a3a'],[9,20,5,3,'#e83a3a'],[3,15,10,6,C],[3,9,10,7,C],[1,10,2,5,C],[4,2,8,8,Wf],[1,3,4,5,'#ff7a2a'],[11,3,4,5,'#ff7a2a'],[4,0,8,2,'#2a2030'],[6,-3,4,4,'#2a2030']];
+    p.push(up?[13,4,2,6,C]:[13,10,2,5,C]);
+    const q=[[5,4,2,1,K],[9,4,2,1,K],[5,5,1,1,K],[10,5,1,1,K],[7,6,2,2,'#ff2a2a'],[10,6,1,2,'#3a8ae8'],[5,7,1,1,'#ffaab8'],
+      [4,9,8,1,Wf],[5,9,1,1,'#ff7ab0'],[8,9,1,1,'#ff7ab0'],[11,9,1,1,'#ff7ab0'],[5,11,1,1,'#e83a3a'],[9,12,1,1,'#3a8ae8'],[7,14,1,1,'#e83a3a'],[11,16,1,1,'#3a8ae8'],[4,18,1,1,'#e83a3a'],
+      [3,15,10,1,D],[1,15,2,1,Wf],[9,0,2,1,'#ff5a8a'],[6,-2,4,1,'#4a3a5a']];
+    q.push(sing?[6,8,4,2,'#c8203a']:[7,8,2,1,'#c8203a']);
+    if(up) q.push([13,3,2,2,Wf],[13,1,2,2,'#3a3a44'],[13,0,2,1,'#8a8a9a']); else q.push([13,14,2,1,Wf],[13,12,2,2,'#3a3a44']);
+    sprite(g,ox,oy,p,q,K,false);
+  } else {
+    const C='#3a6ad8', strum=Math.floor(t*8)%2;
+    const p=[[2,20,5,3,'#e83a3a'],[9,20,5,3,'#e83a3a'],[3,15,10,6,C],[3,9,10,7,C],[1,10,2,5,C],[13,10,2,5,C],[4,2,8,8,Wf],[1,1,4,6,'#3ac84a'],[11,1,4,6,'#3ac84a'],[4,0,8,2,'#3ac84a'],[0,3,2,3,'#3ac84a'],[14,3,2,3,'#3ac84a']];
+    const q=[[5,5,1,1,K],[10,5,1,1,K],[5,3,1,1,'#3a8ae8'],[10,3,1,1,'#3a8ae8'],[7,6,2,2,'#ff2a2a'],[5,8,6,1,'#e8203a'],[4,7,1,1,'#e8203a'],[11,7,1,1,'#e8203a'],
+      [3,11,10,1,Wf],[3,13,10,1,Wf],[3,17,10,1,Wf],[5,9,6,2,'#ffd23a'],[7,9,2,2,'#e8a020'],[5,1,2,1,'#7ae87a'],[10,0,2,1,'#7ae87a']];
+    if(sing) q.push([6,8,4,1,'#ffffff']);
+    // guitarra
+    q.push([2,13,6,5,'#c8783a'],[3,14,4,3,'#e09a5a'],[4,15,2,1,'#3a1a0a'],[8,13,6,1,'#7a4a1a'],[13,12,2,2,'#5a3010'],[5,13+strum,3,1,Wf],[1,14,2,1,Wf]);
+    sprite(g,ox,oy,p,q,K,false);
+  }
+}
 function signPost(g,c,r,kind){
   const x=c*16,y=r*16;
   rect(g,x+3,y+14,10,2,'rgba(0,0,0,.25)');
@@ -879,7 +905,10 @@ ROOMS.sala5={
     qDoors(R,'sala5',[2,9,16],[{type:'tent',c1:'#e83a4a',c2:'#ffffff'},{type:'tent',c1:'#3a7ae8',c2:'#ffffff'},{type:'tent',c1:'#9a4ad8',c2:'#ffd23a'}]);
     R.solid(1,7,3,3); R.interact(1,7,3,3,()=>Dialog.open(['¡Gana un osito para tu pareja!','(Los ositos de peluche tienen corazones bordados.)']));
     R.solid(16,7,3,3); R.interact(16,7,3,3,()=>Dialog.open(['¡Algodón de azúcar para los enamorados!']));
-    R.solid(4,12); R.solid(15,12); R.interact(15,12,1,1,()=>Dialog.open(['(Un montón de globos con forma de corazón.)']));
+    R.solid(18,12); R.solid(15,12); R.interact(15,12,1,1,()=>Dialog.open(['(Un montón de globos con forma de corazón.)']));
+    R.solid(1,11,4,3); R.interact(1,11,4,3,()=>Dialog.open(['¡Lagrimita y Costel están dando un concierto en la feria!','*Le cantan una canción de amor a todas las parejitas* <3']));
+    R.static(206,(g,t)=>{drawClown(g,26,186,'lagrimita',t);drawClown(g,53,186,'costel',t);});
+    R.light(48,196,38,'rgba(255,210,140,0.5)',1);
     R.solid(11,12); R.interact(11,12,1,1,qSign('sala5'));
     R.walker(makeCouple(5,11,[[5,6],[5,11]],NP[4],NP[5],['¡La rueda de la fortuna es lo mejor de la feria!']));
     R.walker(makeCouple(13,6,[[13,11],[13,6]],NP[2],NP[1],['Nos besamos por primera vez aquí... <3']));
@@ -904,7 +933,16 @@ ROOMS.sala5={
       rect(g,x,146,48,14,'#c88a4a');rect(g,x,146,48,2,'#e8aa6a');rect(g,x,158,48,2,'#8a5a2a');
       for(let i=0;i<8;i++){rect(g,x+i*6,112,6,12,i%2?c1:c2);pxCircle(g,x+i*6+3,124,3,i%2?c1:c2);}};
     stall(16,'#e83a4a','#ffffff','bear'); stall(256,'#ff7ab0','#ffffff','candy');
-    rect(g,66,198,12,14,'#e8e0f0'); rect(g,64,196,16,4,'#ff7ab0'); pxCircle(g,72,192,5,'#ffb0d8'); rect(g,66,210,2,4,'#333'); rect(g,76,210,2,4,'#333');
+    rect(g,290,198,12,14,'#e8e0f0'); rect(g,288,196,16,4,'#ff7ab0'); pxCircle(g,296,192,5,'#ffb0d8'); rect(g,290,210,2,4,'#333'); rect(g,300,210,2,4,'#333');
+    // escenario del concierto de payasitos
+    rect(g,17,167,62,18,'#1a1028'); rect(g,18,168,60,16,'#a01a3a');
+    for(let x=20;x<78;x+=6) rect(g,x,168,2,16,'#c8284a');
+    rect(g,18,168,60,3,'#ffd23a'); rect(g,18,171,60,1,'#c89020');
+    plaque(g,48,156,'SHOW!',{bg:'#ffd23a',sh:'#e0a820',fg:'#a01a3a',ol:'#3a1a00'});
+    rect(g,16,184,64,38,'#3a1e0e'); rect(g,17,185,62,30,'#a86a3a');
+    for(let y=187;y<215;y+=5) rect(g,17,y,62,1,'#8a5228');
+    rect(g,17,215,62,7,'#7a1a2a'); for(let x=19;x<78;x+=6) rect(g,x,216,3,5,'#a02a3a');
+    for(const sx of [17,72]){rect(g,sx,196,7,14,'#1a1a22');rect(g,sx+1,197,5,12,'#2a2a34');pxCircle(g,sx+3,201,2,'#5a5a6a');pxCircle(g,sx+3,206,1,'#5a5a6a');}
     signPost(g,11,12,'q');
   },
   back(g,t,rm){
@@ -924,7 +962,8 @@ ROOMS.sala5={
     for(let x=16;x<64;x+=6){if((Math.floor(t*4)+x)%3===0)rect(g,x+2,110,2,2,'#fff6a0');} for(let x=256;x<304;x+=6){if((Math.floor(t*4)+x)%3===1)rect(g,x+2,110,2,2,'#fff6a0');}
   },
   top(g,t,rm){for(const w of rm.walkers) floatHeart(g,w.px+12,w.py-26,t,w.x);},
-  emit(dt){if(Math.random()<dt*1.5)spawnP({type:'spark',x:134+Math.random()*52,y:4+Math.random()*52,life:1,max:1,c:['#fff6a0','#ff9ac8','#6ae0ff'][Math.floor(Math.random()*3)]});},
+  emit(dt){if(Math.random()<dt*1.5)spawnP({type:'spark',x:134+Math.random()*52,y:4+Math.random()*52,life:1,max:1,c:['#fff6a0','#ff9ac8','#6ae0ff'][Math.floor(Math.random()*3)]});
+    if(Math.random()<dt*1.6)spawnP({type:'note',x:26+Math.random()*40,y:180,vy:-14,vx:(Math.random()-0.3)*10,life:2.2,max:2.2,c:['#ffd23a','#ff9ac8','#ffffff','#6ae0ff'][Math.floor(Math.random()*4)]});},
   enter:qEnter('sala5')
 };
 
@@ -1133,20 +1172,20 @@ const DEAD_PAL={
 };
 const DEAD_TALK={
   dog:['Perrito: ¿Guau?','Panda: *deja de masticar su bambú y te mira confundido*'],
-  laugh:['Perrito: ¡Guau guau! *se ríe*','Panda: JAJAJA *se revuelca de la risa*'],
+  laugh:['Perrito: ¡Guau! *te mueve la colita para animarte*','Panda: *te comparte un poquito de su bambú* ¡Tú puedes!'],
   blush:['Perrito: ¡Guau! <3','Panda: *se tapa la carita, todo sonrojado*'],
   love:['Perrito: ¡Guau! <3','Panda: *suspira enamorado*']
 };
-const PET_MOOD={dog:'confused',laugh:'laugh',blush:'blush',love:'love'};
+const PET_MOOD={dog:'confused',laugh:'cheer',blush:'blush',love:'love'};
 function drawPanda(g,x,y,mood,t){
   const K='#24222c',Wh='#ffffff';
   let ox=Math.round(x),oy=Math.round(y);
   if(mood==='laugh') ox+=Math.sin(t*22)>0?1:0; else oy+=Math.sin(t*2.2)>0.6?-1:0;
   const scratch=mood==='confused'&&Math.sin(t*2.5)>0;
   const p=[[2,0,4,4,K],[12,0,4,4,K],[2,2,14,10,Wh],[3,11,12,8,Wh],[3,17,5,4,K],[10,17,5,4,K],[1,12,4,5,K]];
-  p.push(scratch?[14,4,3,9,K]:[13,12,4,5,K]);
+  p.push(scratch?[14,4,3,9,K]:mood==='cheer'?[14,Math.sin(t*8)>0?2:4,3,9,K]:[13,12,4,5,K]);
   const q=[[3,1,2,2,'#4a4656'],[13,1,2,2,'#4a4656'],[5,13,8,5,'#eef0f6'],[4,19,3,1,'#ff9ab0'],[11,19,3,1,'#ff9ab0'],[4,5,3,3,K],[11,5,3,3,K],[8,8,2,1,K]];
-  if(mood==='laugh') q.push([4,6,1,1,Wh],[5,5,1,1,Wh],[6,6,1,1,Wh],[11,6,1,1,Wh],[12,5,1,1,Wh],[13,6,1,1,Wh],[7,9,4,3,'#7a1a2a'],[8,11,2,1,'#ff7a9a'],[2,7,1,2,'#7ac8ff'],[15,7,1,2,'#7ac8ff']);
+  if(mood==='cheer') q.push([4,6,1,1,Wh],[5,5,1,1,Wh],[6,6,1,1,Wh],[11,6,1,1,Wh],[12,5,1,1,Wh],[13,6,1,1,Wh],[7,10,4,1,'#c84a6a'],[6,9,1,1,'#c84a6a'],[11,9,1,1,'#c84a6a'],[3,8,2,1,'#ff9ab0'],[13,8,2,1,'#ff9ab0']);
   else if(mood==='blush') q.push([4,6,1,1,Wh],[5,7,1,1,Wh],[6,6,1,1,Wh],[11,6,1,1,Wh],[12,7,1,1,Wh],[13,6,1,1,Wh],[2,8,2,2,'#ff8ab0'],[14,8,2,2,'#ff8ab0'],[8,10,2,1,'#c84a6a']);
   else if(mood==='love'){const R='#ff3a6a';q.push([4,5,1,1,R],[6,5,1,1,R],[4,6,3,1,R],[5,7,1,1,R],[11,5,1,1,R],[13,5,1,1,R],[11,6,3,1,R],[12,7,1,1,R],[7,10,4,1,'#c84a6a'],[3,9,1,1,'#ff9ab0'],[14,9,1,1,'#ff9ab0']);}
   else if(mood==='sad'){const tr=Math.floor(t*3)%3;q.push([5,7,1,1,Wh],[12,7,1,1,Wh],[7,10,1,1,K],[8,9,2,1,K],[10,10,1,1,K],[5,8+tr,1,1,'#7ac8ff'],[12,8+(tr+1)%3,1,1,'#7ac8ff']);}
@@ -1167,7 +1206,7 @@ ROOMS.dead={
     const mood=PET_MOOD[o.v]||'confused';
     R.door({c:9,bottom:true,label:'REGRESAR',target:o.back,args:{fromDead:true}});
     R.solid(8,7,4,1); R.interact(8,7,4,1,()=>Dialog.open(DEAD_TALK[o.v]||DEAD_TALK.dog));
-    R.static(127,(g,t)=>{drawDog(g,135,112,mood,t);drawPanda(g,161,107,mood,t);});
+    R.static(127,(g,t)=>{drawDog(g,135,112,mood==='cheer'?'blush':mood,t);drawPanda(g,161,107,mood,t);});
     R.solid(1,3,2,1); R.interact(1,3,2,1,()=>Dialog.open(['(Bambú fresquito. El snack favorito del panda.)']));
     R.solid(16,3,2,1); R.interact(16,3,2,1,()=>Dialog.open(['(Libros: "Odontología con amor", "Sonrisas brillantes" y un álbum lleno de fotos bonitas.)','(En la repisa de abajo hay una muelita de peluche.)']));
     R.solid(1,12,3,1); R.interact(1,12,3,1,()=>Dialog.open(['(La camita del perrito y el panda. Lo comparten todo.)']));
@@ -1195,7 +1234,7 @@ ROOMS.dead={
     // cuadros
     const frame=(x,y,w,h)=>{rect(g,x-1,y-1,w+2,h+2,'#6a3a1a');rect(g,x,y,w,h,'#c8a050');rect(g,x+2,y+2,w-4,h-4,'#fffaf0');};
     frame(212,8,20,18);
-    if(o.v==='laugh'){pxCircle(g,222,17,5,'#ffd23a');rect(g,219,15,1,1,'#3a2000');rect(g,224,15,1,1,'#3a2000');rect(g,219,18,6,2,'#7a1a1a');}
+    if(o.v==='laugh') drawPattern(g,['..1..','..1..','11111','.111.','11.11'],217,12,2,'#ffb020');
     else if(o.v==='dog') txt(g,'?',218,13,8,'#8a6ac8');
     else miniHeart(g,220,15,'#e83a6a');
     frame(238,12,16,14);
@@ -1237,11 +1276,11 @@ ROOMS.dead={
   anim(g,t){if(Math.sin(t*3)>0.5){rect(g,40,12,1,3,'#ffffff');rect(g,39,13,3,1,'#ffffff');}},
   top(g,t,rm){const v=rm.opts.v,b=Math.round(Math.sin(t*3)*1.5);
     if(v==='dog'){bubble(g,134,90+b,11,11);txt(g,'?',136,92+b,8,'#c8204a');bubble(g,170,82-b,11,11);txt(g,'?',172,84-b,8,'#8a6ac8');}
-    else if(v==='laugh'){bubble(g,170,82+b,36,12);txt(g,'JAJA',172,84+b,8,'#e8a020');}
+    else if(v==='laugh'){bubble(g,166,82+b,92,12);txt(g,'¡TU PUEDES!',169,84+b,8,'#e8a020');}
     else {bubble(g,172,82+b,13,11);miniHeart(g,176,86+b,'#ff3a6a');floatHeart(g,139,96,t);}
   },
   emit(dt,rm){const v=rm.opts.v;
-    if(v==='laugh'&&Math.random()<dt*1.2)spawnP({type:'ja',x:50+Math.random()*210,y:215,vy:-18,life:2.5,max:2.5,c:'#ffd23a'});
+    if(v==='laugh'&&Math.random()<dt*2)spawnP({type:'spark',x:50+Math.random()*220,y:200+Math.random()*15,vy:-16,life:2.5,max:2.5,c:['#ffd23a','#ffffff','#ffb020'][Math.floor(Math.random()*3)]});
     else if((v==='love'||v==='blush')&&Math.random()<dt*1.5)spawnP({type:'heart',x:50+Math.random()*220,y:215,vy:-14,life:3,max:3,c:'#ff7ab0'});
     else if(v==='dog'&&Math.random()<dt*0.8)spawnP({type:'q',x:50+Math.random()*220,y:215,vy:-14,life:3,max:3,c:'#8a6ac8'});},
   enter(rm,o){Dialog.open([o.msg,'(Regresa por la puerta de abajo e inténtalo otra vez.)']);}
