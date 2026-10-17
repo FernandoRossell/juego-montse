@@ -50,7 +50,7 @@ body{
   padding:max(6px,env(safe-area-inset-top)) 6px max(6px,env(safe-area-inset-bottom));
   grid-template-areas:"con" "hint"}
 body.touch #app{grid-template-columns:1fr 1fr;grid-template-areas:"con con" "l r";width:100%}
-body.touch.landscape #app{grid-template-columns:auto auto auto;grid-template-areas:"l con r";align-items:center}
+body.touch.landscape #app{grid-template-columns:auto auto auto;grid-template-areas:"l con r";align-items:center;gap:6px}
 #console{grid-area:con;background:linear-gradient(155deg,#6c45b0 0%,#4a2a86 55%,#371d68 100%);
   padding:9px 9px 12px;border-radius:14px 14px 34px 14px;
   box-shadow:0 0 0 3px #1d0f38,0 18px 50px rgba(0,0,0,.65),inset 0 2px 0 rgba(255,255,255,.18),inset 0 -3px 0 rgba(0,0,0,.25)}
@@ -112,8 +112,13 @@ body.touch #hint{display:none}
 #ctrlL,#ctrlR{display:none;touch-action:none}
 body.touch #ctrlL{grid-area:l;display:flex;justify-self:start;padding-left:10px}
 body.touch #ctrlR{grid-area:r;display:flex;justify-self:end;padding-right:12px;gap:14px;align-items:center}
-body.touch.landscape #ctrlL{padding-left:4px}
-body.touch.landscape #ctrlR{padding-right:4px}
+/* Celular en horizontal: la pregunta pasa a la columna izquierda (arriba de la cruceta) para que el juego use todo el alto */
+body.touch.landscape #ctrlL{flex-direction:column;align-items:center;justify-content:center;gap:8px;width:184px;min-width:0;
+  padding:0 2px 0 max(4px,env(safe-area-inset-left))}
+body.touch.landscape #ctrlL #panel{width:100%;margin:0;font-size:8px;line-height:1.5;padding:7px 9px 8px;
+  max-height:calc(100vh - 136px);max-height:calc(100dvh - 136px);overflow-y:auto}
+body.touch.landscape #dpad{zoom:.85}
+body.touch.landscape #ctrlR{padding-right:max(4px,env(safe-area-inset-right))}
 #dpad{position:relative;width:144px;height:144px;border-radius:50%;background:radial-gradient(circle,#2b2046 0%,#22183a 60%,transparent 62%)}
 .dp{position:absolute;background:#2d2640;box-shadow:inset 0 -4px 0 #17121f,0 3px 0 #0a0810}
 .dp.up{left:48px;top:4px;width:48px;height:48px;border-radius:7px 7px 0 0}
@@ -1551,12 +1556,15 @@ function loop(now){const dt=Math.min(0.05,(now-lastT)/1000);lastT=now;update(dt)
 function resize(){
   const touch=document.body.classList.contains('touch'), land=touch&&innerWidth>innerHeight;
   document.body.classList.toggle('landscape',land);
+  const ctrlL=$('ctrlL'), wrap=$('screenWrap');
+  if(land&&panelEl.parentNode!==ctrlL) ctrlL.insertBefore(panelEl,ctrlL.firstChild);
+  else if(!land&&panelEl.parentNode!==wrap) wrap.insertBefore(panelEl,$('screen'));
   const panelVis=!panelEl.classList.contains('hidden');
   let s=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--s'))||2;
   for(let i=0;i<3;i++){
     document.documentElement.style.setProperty('--s',s);
-    const ph=panelVis?panelEl.offsetHeight+6:0;
-    const ctrlH=touch&&!land?175:0, ctrlW=land?330:0, hintH=touch?0:34, chrome=58;
+    const ph=panelVis&&!land?panelEl.offsetHeight+6:0;
+    const ctrlH=touch&&!land?175:0, ctrlW=land?360:0, hintH=touch?0:34, chrome=58;
     const aw=Math.min(innerWidth-ctrlW-30,1200), ah=innerHeight-ph-ctrlH-hintH-chrome;
     s=Math.max(0.55,Math.min(aw/320,ah/240)); if(s>=2) s=Math.floor(s*4)/4;
   }
