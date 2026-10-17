@@ -1062,7 +1062,7 @@ function forestTop(g,t){floatHeart(g,156,154,t,0);floatHeart(g,38,140,t,1);float
 
 /* ---------- SALA 7: La gran pregunta ---------- */
 ROOMS.sala7={
-  wallRows:3, spawn:{x:9,y:7,dir:1}, tint:'#8280d4',
+  wallRows:3, spawn:{x:9,y:7,dir:1}, tint:'#8280d4', noFollower:true,
   panel:()=>({title:'¿QUIERES SER MI NOVIA?',cls:'big',hint:'Camina hacia la puerta de tu respuesta.'}),
   setup(R,rm){
     forestSetup(R,rm);
@@ -1085,7 +1085,7 @@ ROOMS.sala7={
 
 /* ---------- SALA BUCLE: ¿Segura? (salita acogedora con perrito y panda) ---------- */
 ROOMS.loop={
-  wallRows:3, spawn:{x:9,y:12,dir:1}, tint:null,
+  wallRows:3, spawn:{x:9,y:12,dir:1}, tint:null, noFollower:true,
   panel:()=>({title:LOOP_WORDS[Math.min(flags.loop,3)],cls:'big',hint:flags.loop>=3?'La puerta del SÍ está clausurada...':'SÍ = segura  ·  NO = no estoy segura'}),
   setup(R,rm){
     const lv=Math.min(flags.loop,3), mood=lv>=3?'love':'sad';
@@ -1291,7 +1291,7 @@ ROOMS.dead={
 
 /* ---------- SALA 8: ¡Victoria! ---------- */
 ROOMS.sala8={
-  wallRows:3, spawn:{x:9,y:8,dir:0}, tint:'#9c94dc', hidePlayer:true, noControl:true,
+  wallRows:3, spawn:{x:9,y:8,dir:0}, tint:'#9c94dc', hidePlayer:true, noControl:true, noFollower:true,
   panel:()=>({title:FINAL_MSG,cls:'final'}),
   setup(R,rm){forestSetup(R,rm);R.light(160,120,70,'rgba(255,150,200,0.45)',1);R.light(160,70,90,'rgba(255,200,120,0.25)');},
   bg(g){forestBG(g,true); bigSign(g,56,48,208,50,['¡FELICIDADES,','AHORA SOMOS','NOVIOS! <3'],{flowers:true,size:12,gap:2,face:'#ff7aa8',faceSh:'#e85a8a',frame:'#ffd23a',frameL:'#fff2a0',color:'#ffffff',shadow:'#a01a4a'});},
@@ -1323,7 +1323,7 @@ function updateWalker(w,dt){
     if(w.x===gx&&w.y===gy){w.pi=(w.pi+1)%w.path.length;w.wait=1.4;}
     else{const dx=Math.sign(gx-w.x),dy=dx?0:Math.sign(gy-w.y),nx=w.x+dx,ny=w.y+dy;w.dir=dy>0?0:dy<0?1:dx<0?2:3;
       const P=player,hit=(cx,cy)=>cy===ny&&(cx===nx||cx===nx+1);
-      if(hit(P.x,P.y)||(P.moving&&hit(P.tx,P.ty))) w.wait=0.4; else {w.tx=nx;w.ty=ny;w.moving=true;w.prog=0;w.stepAlt=!w.stepAlt;}}}
+      if(hit(P.x,P.y)||(P.moving&&hit(P.tx,P.ty))||(buddy.on&&(hit(buddy.x,buddy.y)||(buddy.moving&&hit(buddy.tx,buddy.ty))))) w.wait=0.4; else {w.tx=nx;w.ty=ny;w.moving=true;w.prog=0;w.stepAlt=!w.stepAlt;}}}
   const k=w.moving?w.prog/16:0; w.px=(w.x+(w.tx-w.x)*k)*16; w.py=(w.y+(w.ty-w.y)*k)*16;
   w.frame=w.moving&&w.prog>=3&&w.prog<13?(w.stepAlt?1:2):0;
 }
@@ -1333,6 +1333,25 @@ function drawWalker(g,w){drawPerson(g,w.px+1,w.py,w.dir,w.frame,w.pa);drawPerson
    CARGA DE SALAS Y TRANSICIONES
    ===================================================================== */
 const player={x:9,y:12,px:144,py:192,dir:1,moving:false,prog:0,tx:9,ty:12,frame:0,stepAlt:false,turnT:0,walking:false,bumpT:0,bumping:false,door:null};
+/* Él la acompaña una casilla atrás (estilo Pokémon) en todas las salas, salvo en la pregunta final */
+const buddy={x:9,y:13,tx:9,ty:13,px:144,py:208,dir:1,moving:false,stepAlt:false,frame:0,on:false};
+const BUDDY_TALK=[['"¡Me encanta esta cita contigo!" <3'],['"¿Ya te dije que hoy te ves hermosa?"'],['*Te toma de la mano y sonríe* <3'],
+  ['"Contigo hasta perderse es bonito."'],['"Tú puedes, te sabes todas las respuestas."'],['*Te da un abrazo rapidito* <3']];
+let buddyTalk=0;
+function placeBuddy(sp){
+  buddy.on=!room.def.noFollower;
+  const b=DIRS[[1,0,3,2][sp.dir]];
+  const spot=[[sp.x+b[0],sp.y+b[1]],[sp.x-1,sp.y],[sp.x+1,sp.y]].find(([x,y])=>y>=0&&y<ROWS&&x>=0&&x<COLS&&!room.solid[y][x])||[sp.x,sp.y];
+  Object.assign(buddy,{x:spot[0],y:spot[1],tx:spot[0],ty:spot[1],px:spot[0]*16,py:spot[1]*16,dir:sp.dir,moving:false,frame:0});
+}
+function updateBuddy(){
+  if(!buddy.on) return;
+  const k=buddy.moving?Math.min(1,player.prog/16):0;
+  buddy.px=(buddy.x+(buddy.tx-buddy.x)*k)*16; buddy.py=(buddy.y+(buddy.ty-buddy.y)*k)*16;
+  buddy.frame=buddy.moving&&player.prog>=3&&player.prog<13?(buddy.stepAlt?1:2):0;
+  if(!buddy.moving&&!player.moving){const dx=player.x-buddy.x,dy=player.y-buddy.y;
+    if(dx||dy) buddy.dir=Math.abs(dx)>Math.abs(dy)?(dx<0?2:3):(dy<0?1:0);}
+}
 function loadRoom(id,opts={}){
   const def=ROOMS[id];
   const rm={id,def,opts,wallRows:def.wallRows||3,solid:[],doors:[],inter:[],walkers:[],statics:[],lights:[]};
@@ -1352,6 +1371,7 @@ function loadRoom(id,opts={}){
   room=rm; state='play';
   const sp=opts.spawn||def.spawn;
   Object.assign(player,{x:sp.x,y:sp.y,tx:sp.x,ty:sp.y,dir:sp.dir,moving:false,prog:0,door:null,walking:false,turnT:0,px:sp.x*16,py:sp.y*16,frame:0});
+  placeBuddy(sp);
   parts.length=0; lastNear=-2; updatePanel();
 }
 function goTo(id,opts={},meta={}){if(trans)return;trans={phase:'out',t:0,id,opts,meta};}
@@ -1455,17 +1475,23 @@ function tryMove(d){
   if(blocked(nx,ny)){if(player.bumpT<=0){SFX.bump();player.bumpT=0.4;}return false;}
   startMove(nx,ny);return true;
 }
-function startMove(nx,ny){player.tx=nx;player.ty=ny;player.moving=true;player.prog=0;player.stepAlt=!player.stepAlt;}
+function startMove(nx,ny){
+  if(buddy.on&&(buddy.x!==player.x||buddy.y!==player.y)){   // él avanza a donde ella estaba
+    buddy.tx=player.x;buddy.ty=player.y;buddy.moving=true;buddy.stepAlt=!buddy.stepAlt;
+    const dx=buddy.tx-buddy.x,dy=buddy.ty-buddy.y;buddy.dir=Math.abs(dx)>Math.abs(dy)?(dx<0?2:3):(dy<0?1:0);}
+  player.tx=nx;player.ty=ny;player.moving=true;player.prog=0;player.stepAlt=!player.stepAlt;}
 function interact(){
   const [dx,dy]=DIRS[player.dir],fx=player.x+dx,fy=player.y+dy;
   for(const it of room.inter)if(fx>=it.c&&fx<it.c+it.w&&fy>=it.r&&fy<it.r+it.h){SFX.select();it.fn();return;}
   for(const w of room.walkers)if(walkerOcc(w,fx,fy)&&w.talk){SFX.select();Dialog.open(w.talk);return;}
+  if(buddy.on&&buddy.x===fx&&buddy.y===fy){SFX.select();Dialog.open(BUDDY_TALK[buddyTalk++%BUDDY_TALK.length]);return;}
 }
 function updatePlayer(dt){
   const P=player; P.bumpT-=dt;
   if(P.moving){
     P.prog+=((Input.run||Input.touchRun)?135:70)*dt;
     if(P.prog>=16){P.x=P.tx;P.y=P.ty;P.moving=false;P.prog=0;
+      if(buddy.moving){buddy.x=buddy.tx;buddy.y=buddy.ty;buddy.moving=false;}
       if(P.door){const d=P.door;P.door=null;P.px=P.x*16;P.py=P.y*16;P.frame=0;enterDoor(d);return;}}
   }
   if(!P.moving){
@@ -1478,6 +1504,7 @@ function updatePlayer(dt){
   }
   if(P.moving){const k=P.prog/16;P.px=(P.x+(P.tx-P.x)*k)*16;P.py=(P.y+(P.ty-P.y)*k)*16;P.frame=(P.prog>=3&&P.prog<13)?(P.stepAlt?1:2):0;}
   else{P.px=P.x*16;P.py=P.y*16;P.frame=P.bumping?((Math.floor(T*5)%2)?(P.stepAlt?1:2):0):0;}
+  updateBuddy();
 }
 
 /* =====================================================================
@@ -1577,6 +1604,7 @@ function render(){
     if(d.anim) d.anim(g,T,rm);
     const list=rm.statics.slice();
     for(const w of rm.walkers) list.push({y:w.py,draw:gg=>drawWalker(gg,w)});
+    if(!d.hidePlayer&&buddy.on) list.push({y:buddy.py+0.4,draw:gg=>drawPerson(gg,buddy.px,buddy.py,buddy.dir,buddy.frame,BOY)});
     if(!d.hidePlayer) list.push({y:player.py+0.5,draw:gg=>drawPerson(gg,player.px,player.py,player.dir,player.frame,GIRL)});
     list.sort((a,b)=>a.y-b.y); for(const s of list) s.draw(g,T);
     if(d.tint){g.globalCompositeOperation='multiply';g.fillStyle=d.tint;g.fillRect(0,0,W,H);g.globalCompositeOperation='source-over';}
