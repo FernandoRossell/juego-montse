@@ -243,10 +243,10 @@ const NP=[
 const WAITER=mkP({skin:'#f0c8a0',hair:'#2a2a2a',hairH:'#4a4a4a',shirt:'#f4f4f4',shirtD:'#1a1a1a',pants:'#1a1a1a',shoes:'#000'});
 
 /* dir: 0 abajo, 1 arriba, 2 izquierda, 3 derecha · frame: 0 quieto, 1/2 pasos */
-function drawPerson(g,x,y,dir,frame,P){
+function drawPerson(g,x,y,dir,frame,P,noShadow){
   const ox=Math.round(x), oy=Math.round(y)-7;
   const mir=dir===3, d=mir?2:dir, p=[], q=[];
-  g.fillStyle='rgba(0,0,0,0.25)'; g.fillRect(ox+3,oy+21,10,2);
+  if(!noShadow){g.fillStyle='rgba(0,0,0,0.25)'; g.fillRect(ox+3,oy+21,10,2);}
   if(d===0){
     const lo=frame===1?-1:0, ro=frame===2?-1:0, aL=frame===2?1:0, aR=frame===1?1:0;
     if(P.long) p.push([2,3,12,12,P.hair]);
@@ -347,6 +347,42 @@ function grassTile(g,x,y,r,pal){
   if(r()<0.5) rect(g,x+Math.floor(r()*14),y+Math.floor(r()*14),1,1,pal[2]);
 }
 function flower(g,x,y,c){rect(g,x,y-1,1,1,c);rect(g,x-1,y,3,1,c);rect(g,x,y+1,1,1,c);rect(g,x,y,1,1,'#fff6a0');}
+/* Atrapasueños: x = centro del aro, y = donde cuelga el hilo. Las plumas se mecen. */
+function dreamcatcher(g,x,y,c1,c2,t){
+  x=Math.round(x); y=Math.round(y); const cy=y+9;
+  rect(g,x,y,1,4,'#8a6a4a');
+  for(let a=0;a<360;a+=10){const ca=Math.cos(a*D2R),sa=Math.sin(a*D2R);
+    rect(g,x+Math.round(ca*6),cy+Math.round(sa*6),1,1,'#6a3a1a'); rect(g,x+Math.round(ca*5),cy+Math.round(sa*5),1,1,'#d8a050');}
+  for(let k=0;k<6;k++){const a=k*60*D2R+0.5;line(g,x+Math.cos(a)*4,cy+Math.sin(a)*4,x+Math.cos(a+2.1)*4,cy+Math.sin(a+2.1)*4,'#fff4e0');}
+  rect(g,x,cy,1,1,c1);
+  for(const [dx,len,c] of [[-4,3,c1],[0,6,c2],[4,3,c1]]){const sw=Math.round(Math.sin(t*2+x*0.3+dx)*1);
+    rect(g,x+dx,cy+6,1,len,'#8a6a4a'); rect(g,x+dx,cy+6+len,1,1,'#ffffff');
+    rect(g,x+dx-1+sw,cy+7+len,3,5,c); rect(g,x+dx+sw,cy+7+len,1,5,'#ffffff');}
+}
+/* Decoraciones repartidas por los mapas: atrapasueños (dc) y muelitas (tooth) */
+function drawDecor(g,list,t){
+  for(const d of list){
+    if(d.k==='dc') dreamcatcher(g,d.x,d.y,d.c1,d.c2,t);
+    else{const b=Math.round(Math.sin(t*2+d.x*0.1)*1);
+      rect(g,d.x+3,d.y+12,7,1,'rgba(0,0,0,.25)'); tooth(g,d.x,d.y+b,1,true);
+      if(Math.sin(t*2.5+d.x)>0.8){rect(g,d.x+13,d.y-2+b,1,3,'#ffffff');rect(g,d.x+12,d.y-1+b,3,1,'#ffffff');}}
+  }
+}
+/* Parejita lanzándose en paracaídas (decoración del cielo de la feria, Sala 5) */
+function parachute(g,x,y,P,cols,t,ph){
+  const sw=Math.round(Math.sin(t*1.6+ph)*2), cx=x+8+sw, top=y-22;
+  const hw=i=>Math.round(11*Math.sqrt(Math.max(0,1-((8-i)/9)**2)))+1;
+  for(let i=0;i<9;i++) rect(g,cx-hw(i)-1,top+i-1,hw(i)*2+2,3,'#1a1024');
+  for(let i=0;i<9;i++) for(let px=-hw(i);px<hw(i);px++){g.fillStyle=(Math.floor((px+12)/6)%2)?cols[0]:cols[1];g.fillRect(cx+px,top+i,1,1);}
+  line(g,cx-11,top+8,x+3,y+5,'#e8e0f4'); line(g,cx+10,top+8,x+12,y+5,'#e8e0f4');
+  drawPerson(g,x,y,0,0,P,true);
+}
+function skydivers(g,t){
+  const x=Math.round(((t*9+150)%440)-70), y=24+Math.round(Math.sin(t*1.3)*2);
+  parachute(g,x,y,GIRL,['#8e5bd6','#f4f4f4'],t,0);
+  parachute(g,x+24,y+3,BOY,['#2a2832','#ff7ab0'],t,1.3);
+  miniHeart(g,x+18,y+2+Math.round(Math.sin(t*3)),'#ff4d7a');
+}
 function mkStars(n,x0,y0,x1,y1,seed){const r=rng(seed),a=[];for(let i=0;i<n;i++)a.push({x:Math.floor(x0+r()*(x1-x0)),y:Math.floor(y0+r()*(y1-y0)),ph:r()*6.28,sp:1+r()*3,big:r()<0.15});return a;}
 function drawStars(g,stars,t){for(const s of stars){const v=(Math.sin(t*s.sp+s.ph)+1)/2;g.fillStyle=v>0.6?'#ffffff':(v>0.3?'#b8b4e8':'#6a66a8');g.fillRect(s.x,s.y,1,1);
   if(s.big&&v>0.75){g.fillStyle='rgba(255,255,255,.7)';g.fillRect(s.x-1,s.y,3,1);g.fillRect(s.x,s.y-1,1,3);}}}
@@ -544,6 +580,9 @@ function drawParts(g){
 const MSG_INTRO=['Llevamos mucho tiempo estando cerca, pero fue la vida la que decidió cruzarnos de la manera más inesperada.',
   'Sin darnos cuenta, nos convertimos exactamente en eso que el otro tanto había esperado...',
   '...y así fue como comenzó nuestra historia.'];
+const MSG_TRIVIA=['Esta noche vamos a jugar una pequeña trivia sobre nosotros...',
+  'Responde caminando hacia la puerta correcta. Si te equivocas, no pasa nada: siempre puedes regresar e intentarlo otra vez.',
+  'Y tranquila... el final será la mejor parte. <3'];
 const MSG6=['Querida Montse:\nEn muy poco tiempo has transformado mi mundo de una forma increíble.',
   'Eres todo lo que algún día pude pedir y llegaste en el momento que menos lo esperaba.',
   'Contigo volví a creer en el amor, en las almas gemelas y en la magia de coincidir;',
@@ -593,7 +632,7 @@ ROOMS.sala1={
     R.door({c:9,style:WOOD_WARM,target:'sala2'});
     R.solid(2,3,4,1); R.solid(1,3); R.solid(18,3);
     R.solid(3,4,2,1); R.interact(3,4,2,1,()=>Dialog.open(['Miau... <3','(Dos gatitos acurrucados frente a la chimenea.)']));
-    R.solid(9,6); R.interact(9,6,1,1,()=>Dialog.open(MSG_INTRO));
+    R.solid(9,6); R.interact(9,6,1,1,()=>Dialog.open([...MSG_INTRO,...MSG_TRIVIA]));
     R.solid(7,8,6,2); R.interact(7,8,6,2,()=>Dialog.open(['Una cena para dos, con velitas y todo...','Huele delicioso.']));
     R.solid(1,12,4,2); R.solid(18,5,1,3); R.solid(17,12);
     R.static(4*16,(g,t)=>{drawCat(g,48,64,true,'#3a3a44','#24242c',t);drawCat(g,64,64,false,'#f0a050','#c87830',t);});
@@ -669,7 +708,7 @@ ROOMS.sala1={
   },
   top(g,t){floatHeart(g,60,46,t);},
   emit(dt){if(Math.random()<dt*0.7)spawnP({type:'heart',x:150+Math.random()*20,y:128,vy:-10,vx:(Math.random()-0.5)*6,life:2.6,max:2.6,c:'#ff6a9a'});},
-  enter(){Dialog.open(['Tu última cita del día por fin terminó...','Pero esta no es una noche cualquiera.',...MSG_INTRO,'(Camina hacia la puerta de arriba para continuar.)']);}
+  enter(){Dialog.open(['Tu última cita del día por fin terminó...','Pero esta no es una noche cualquiera.',...MSG_INTRO,...MSG_TRIVIA,'(Camina hacia la puerta de arriba para comenzar.)']);}
 };
 
 /* ---------- SALA 2: Pista de hielo ---------- */
@@ -819,7 +858,7 @@ ROOMS.sala4={
     line(g,bx+4,by+8,148,134,'#ddd'); heart(g,bx,by,1,'#ff4d7a');
     const bx2=160+Math.sin(t*1.1+1)*2, by2=100+Math.sin(t*1.8+1)*2; line(g,bx2+4,by2+8,150,134,'#ddd'); heart(g,bx2,by2,1,'#ff9ac8');
   },
-  top(g){g.globalCompositeOperation='lighter';g.fillStyle='rgba(255,240,170,0.08)';
+  top(g,t){g.globalCompositeOperation='lighter';g.fillStyle='rgba(255,240,170,0.08)';
     g.beginPath();g.moveTo(190,131);g.lineTo(300,112);g.lineTo(300,144);g.closePath();g.fill();
     g.beginPath();g.moveTo(190,154);g.lineTo(300,142);g.lineTo(300,176);g.closePath();g.fill();g.globalCompositeOperation='source-over';},
   emit(dt){if(Math.random()<dt*2.5)spawnP({type:'firefly',x:Math.random()*320,y:60+Math.random()*170,life:5,max:5});
@@ -872,6 +911,7 @@ ROOMS.sala5={
     for(let i=0;i<8;i++){const a=rot+i*Math.PI/4+Math.PI/8,gx=cx+Math.cos(a)*R,gy=cy+Math.sin(a)*R;rect(g,gx-3,gy,6,5,['#ff5a7a','#5ac8ff','#ffd23a','#8aff8a'][i%4]);rect(g,gx-3,gy,6,1,'#ffffff');}
     pxCircle(g,cx,cy,3,'#e0dcff');
     for(let i=0;i<34;i++){const x=i*10,y=4+Math.round(Math.sin(i/33*Math.PI)*10);rect(g,x,y,2,2,(Math.floor(t*3)+i)%2?'#fff6a0':['#ff6a9a','#6ae0ff','#ffd23a'][i%3]);}
+    skydivers(g,t);
   },
   anim(g,t){
     for(let i=0;i<5;i++){const bx=244+i*5+Math.sin(t*2+i)*1.5,by=176+Math.sin(t*2.4+i)*2-(i%2)*6;line(g,bx+3,by+6,248,206,'#cccccc');heart(g,bx,by,1,['#ff4d7a','#ff9ac8','#ffd23a','#ff6aa0','#c87aff'][i]);}
@@ -996,39 +1036,84 @@ ROOMS.sala7={
     else Dialog.open(['...','¿QUIERES SER MI NOVIA?','(Camina hacia la puerta de tu respuesta.)']);}
 };
 
-/* ---------- SALA BUCLE: ¿Segura? ---------- */
+/* ---------- SALA BUCLE: ¿Segura? (salita acogedora con perrito y panda) ---------- */
 ROOMS.loop={
   wallRows:3, spawn:{x:9,y:12,dir:1}, tint:null,
   panel:()=>({title:LOOP_WORDS[Math.min(flags.loop,3)],cls:'big',hint:flags.loop>=3?'La puerta del SÍ está clausurada...':'SÍ = segura  ·  NO = no estoy segura'}),
   setup(R,rm){
-    const lv=Math.min(flags.loop,3);
+    const lv=Math.min(flags.loop,3), mood=lv>=3?'love':'sad';
     R.door({c:3,label:'SÍ',target:'loop',action:()=>{flags.loop++;},blocked:lv>=3,blockedMsg:[BLOCK_MSG],style:PINKD,plaque:{bg:'#ffe0ec',sh:'#ffb0cc',fg:'#c8204a',ol:'#6a0f2a'}});
     R.door({c:15,label:'NO',target:'sala7',args:{fromLoop:true},style:PINKD,plaque:{bg:'#e0eeff',sh:'#b0c8f0',fg:'#2a4aa0',ol:'#0f1a4a'}});
     R.solid(5,4,10,3); R.interact(5,4,10,3,()=>Dialog.open([LOOP_WORDS[lv]]));
-    R.solid(10,9); R.interact(10,9,1,1,()=>Dialog.open(lv>=3?['*El perrito sostiene un cartelito que dice: "Di que sí"*']:['*El perrito te mira con ojitos tristes...*']));
-    R.static(9*16,(g,t)=>drawDog(g,160,144,lv>=3?'love':'sad',t));
+    R.solid(8,9,4,1); R.interact(8,9,4,1,()=>Dialog.open(lv>=3
+      ?['(El perrito y el panda sostienen un cartelito que dice: "DI QUE SÍ" <3)']
+      :['Perrito: *te mira con ojitos tristes*','Panda: *suelta su bambú y suspira...*']));
+    R.static(152,(g,t)=>{drawDog(g,136,138,mood,t);drawPanda(g,160,132,mood,t);});
     if(lv>=3){R.solid(5,3);R.interact(5,3,1,1,()=>Dialog.open([BLOCK_MSG]));}
     R.solid(1,3); R.solid(18,3); R.solid(1,13); R.solid(18,13);
+    R.solid(1,8,2,3); R.interact(1,8,2,3,()=>Dialog.open(['(Un sillón muy cómodo... perfecto para ver películas juntos.)']));
+    R.solid(17,8,2,2); R.interact(17,8,2,2,()=>Dialog.open(['(Un osito de peluche junto a una lamparita.)','(Tiene una notita: "Ella siempre dice que sí a los abrazos".)']));
+    R.solid(14,12,3,1); R.interact(14,12,3,1,()=>Dialog.open(['(Cojines suavecitos para acurrucarse.)']));
+    R.light(294,124,24,'rgba(255,220,150,0.4)',1);
   },
   bg(g){
-    const lv=Math.min(flags.loop,3);
-    rect(g,0,0,320,48,'#c9a8e8'); for(let y=6;y<34;y+=14)for(let x=((y/14)%2)*10+4;x<320;x+=20) txt(g,'?',x,y,8,'#b48ad8');
-    rect(g,0,0,320,4,'#6a4a9a'); rect(g,0,34,320,14,'#9a7ac8'); rect(g,0,34,320,2,'#6a4a9a'); rect(g,0,46,320,2,'#4a2a7a');
-    for(let y=48;y<224;y+=16)for(let x=16;x<304;x+=16) rect(g,x,y,16,16,((x+y)/16)%2?'#f6d6e6':'#fbeaf2');
-    rect(g,0,48,16,176,'#8a6ab8'); rect(g,14,48,2,176,'#b89ae0'); rect(g,304,48,16,176,'#8a6ab8'); rect(g,304,48,2,176,'#b89ae0');
-    rect(g,0,224,320,16,'#8a6ab8'); rect(g,0,224,320,2,'#b89ae0');
-    for(const [x,y] of [[16,48],[288,48],[16,208],[288,208]]){rect(g,x+4,y+10,8,6,'#e87aa8');pxCircle(g,x+8,y+6,5,'#5ab86a');flower(g,x+6,y+4,'#ff7ab0');flower(g,x+10,y+7,'#ffffff');}
-    pxEllipse(g,168,158,14,5,'#b07ab8'); pxEllipse(g,168,157,12,4,'#e8a0d0');
-    bigSign(g,78,62,164,40,[LOOP_WORDS[lv]],{size:16,face:'#ffffff',flowers:false,color:'#7a3ac8',shadow:'#d8b8ff'});
+    const lv=Math.min(flags.loop,3), r=rng(31);
+    // pared lila con signos de pregunta y corazoncitos
+    rect(g,0,0,320,48,'#dcc6f2');
+    for(let y=6,i=0;y<34;y+=10,i++)for(let x=(i%2)*12+4,k=0;x<320;x+=24,k++){if((k+i)%2) txt(g,'?',x,y,8,'#c6a8e8'); else miniHeart(g,x,y+1,'#ecb4dc');}
+    rect(g,0,0,320,3,'#9a7ac8');
+    rect(g,0,34,320,14,'#b08ad8'); rect(g,0,34,320,2,'#d0b0f0'); for(let x=0;x<320;x+=16) rect(g,x+2,38,12,6,'#9a76c8'); rect(g,0,46,320,2,'#6a4a9a');
+    // ventana con luna y cortinas
+    rect(g,131,5,58,28,'#6a3a1a'); rect(g,133,7,54,24,'#1c2a5a'); rect(g,133,24,54,7,'#2a3a6a');
+    for(let i=0;i<9;i++) rect(g,135+Math.floor(r()*50),9+Math.floor(r()*12),1,1,'#ffffff');
+    pxCircle(g,174,14,4,'#fff6d0'); pxCircle(g,176,13,3,'#1c2a5a');
+    rect(g,159,7,2,24,'#6a3a1a'); rect(g,133,18,54,2,'#6a3a1a');
+    rect(g,126,3,8,32,'#ff9ac0'); rect(g,186,3,8,32,'#ff9ac0'); rect(g,129,3,1,32,'#e87aa8'); rect(g,189,3,1,32,'#e87aa8'); rect(g,124,2,72,3,'#6a3a1a');
+    // cuadros: corazón y muelita
+    const frame=(x,y,w,h)=>{rect(g,x-1,y-1,w+2,h+2,'#6a3a1a');rect(g,x,y,w,h,'#c8a050');rect(g,x+2,y+2,w-4,h-4,'#fffaf0');};
+    frame(90,10,18,16); miniHeart(g,97,16,'#e83a6a');
+    frame(212,9,18,17); tooth(g,215,12,1,true);
+    // piso de madera rosadita y paredes laterales
+    for(let y=48,i=0;y<224;y+=8,i++){rect(g,0,y,320,8,i%2?'#f6dce8':'#f2d4e2');rect(g,0,y+7,320,1,'#e2bcd0');
+      for(let x=(i*29)%40;x<320;x+=40) rect(g,x,y,1,7,'#e2bcd0');}
+    rect(g,0,48,14,176,'#c4a6ea'); rect(g,14,48,2,176,'#9a7ac8'); rect(g,306,48,14,176,'#c4a6ea'); rect(g,304,48,2,176,'#9a7ac8');
+    rect(g,0,224,320,16,'#9a7ac8'); rect(g,0,224,320,2,'#c4a6ea');
+    // alfombra de corazón
+    for(const [a,b] of [[-2,0],[2,0],[0,-2],[0,2]]) drawPattern(g,HEART,132+a,120+b,8,'#d0608a');
+    drawPattern(g,HEART,132,120,8,'#ff9ac0'); rect(g,140,128,8,8,'#ffc8dc');
+    for(let x=136;x<184;x+=6) rect(g,x,121,2,1,'#ffffff');
+    // sillón
+    rect(g,17,127,30,50,'#5a2a5a'); rect(g,18,128,28,48,'#c85a9a'); rect(g,18,128,8,48,'#a8487e');
+    rect(g,18,128,28,6,'#a8487e'); rect(g,18,170,28,6,'#a8487e'); rect(g,27,152,18,1,'#a8487e');
+    miniHeart(g,32,142,'#ffd0e4'); rect(g,30,158,10,8,'#9ad8ff'); rect(g,30,158,10,1,'#c8ecff');
+    // mesita con lámpara y osito
+    rect(g,275,141,26,4,'#6a3a1a'); rect(g,276,142,24,2,'#b07040'); rect(g,278,145,2,14,'#6a3a1a'); rect(g,296,145,2,14,'#6a3a1a');
+    rect(g,293,128,2,13,'#3a2a1a'); rect(g,287,119,14,10,'#2a1a10'); rect(g,288,120,12,8,'#ffe2a0'); rect(g,288,120,12,2,'#fff6d0');
+    pxCircle(g,282,136,4,'#c8884a'); pxCircle(g,282,129,4,'#d89a5a'); pxCircle(g,279,125,1,'#c8884a'); pxCircle(g,285,125,1,'#c8884a');
+    rect(g,280,129,1,1,'#2a1a10'); rect(g,284,129,1,1,'#2a1a10'); rect(g,282,131,1,1,'#2a1a10'); miniHeart(g,280,135,'#ff4d7a');
+    // cojines
+    pxEllipse(g,254,203,14,6,'#7a4a9a'); pxEllipse(g,254,202,12,5,'#b08ad8'); miniHeart(g,252,200,'#ffd0e4');
+    pxEllipse(g,234,206,10,5,'#c84a8a'); pxEllipse(g,234,205,8,4,'#ff9ac0');
+    // macetas en las esquinas
+    for(const [x,y] of [[16,48],[288,48],[16,208],[288,208]]){rect(g,x+4,y+10,8,6,'#e87aa8');rect(g,x+4,y+10,8,1,'#ffaac8');pxCircle(g,x+8,y+6,5,'#5ab86a');flower(g,x+6,y+4,'#ff7ab0');flower(g,x+10,y+7,'#ffffff');}
+    bigSign(g,78,62,164,40,[LOOP_WORDS[lv]],{size:16,face:'#ffffff',flowers:true,color:'#7a3ac8',shadow:'#d8b8ff'});
     if(lv>=3) signPost(g,5,3,'q');
   },
   anim(g,t){
-    const lv=Math.min(flags.loop,3);
-    if(lv<3){const x=158,y=118+Math.round(Math.sin(t*2));pxCircle(g,x+4,y,4,'#8a8aa0');pxCircle(g,x+10,y-1,5,'#9a9ab0');pxCircle(g,x+16,y,4,'#8a8aa0');
-      for(let i=0;i<4;i++){const dy=(t*40+i*6)%14;rect(g,x+2+i*5,y+5+dy,1,2,'#7ac8ff');}}
+    if(Math.sin(t*3)>0.5){rect(g,140,10,1,3,'#ffffff');rect(g,139,11,3,1,'#ffffff');}
+    if(Math.min(flags.loop,3)<3){   // nubecita de lluvia sobre las mascotas
+      const x=150,y=110+Math.round(Math.sin(t*2));
+      pxCircle(g,x+4,y,5,'#8a8aa0'); pxCircle(g,x+11,y-2,6,'#9a9ab0'); pxCircle(g,x+18,y,5,'#8a8aa0'); rect(g,x+2,y+1,18,4,'#9a9ab0');
+      for(let i=0;i<5;i++){const dy=(t*40+i*7)%16;rect(g,x+2+i*4,y+6+dy,1,2,'#7ac8ff');}
+    }
   },
-  top(g,t){if(Math.min(flags.loop,3)>=3) floatHeart(g,164,124,t);},
-  emit(dt){if(Math.random()<dt*0.8)spawnP({type:'q',x:30+Math.random()*260,y:200,vy:-14,life:3,max:3,c:'#c8a0ff'});},
+  top(g,t){
+    if(Math.min(flags.loop,3)>=3){const b=Math.round(Math.sin(t*3)*1.5);
+      bubble(g,112,104+b,98,12); txt(g,'DI QUE SI <3',115,106+b,8,'#e83a6a');}
+  },
+  emit(dt){
+    if(flags.loop>=3){if(Math.random()<dt*1.5)spawnP({type:'heart',x:40+Math.random()*240,y:215,vy:-14,life:3,max:3,c:'#ff7ab0'});}
+    else if(Math.random()<dt*0.8)spawnP({type:'q',x:30+Math.random()*260,y:215,vy:-14,life:3,max:3,c:'#c8a0ff'});},
   enter(){const lv=Math.min(flags.loop,3);
     if(lv>=3) Dialog.open([LOOP_WORDS[3],'Oh no... la puerta del SÍ amaneció clausurada.','"'+BLOCK_MSG+'"']);
     else Dialog.open([LOOP_WORDS[lv]]);}
@@ -1059,6 +1144,7 @@ function drawPanda(g,x,y,mood,t){
   if(mood==='laugh') q.push([4,6,1,1,Wh],[5,5,1,1,Wh],[6,6,1,1,Wh],[11,6,1,1,Wh],[12,5,1,1,Wh],[13,6,1,1,Wh],[7,9,4,3,'#7a1a2a'],[8,11,2,1,'#ff7a9a'],[2,7,1,2,'#7ac8ff'],[15,7,1,2,'#7ac8ff']);
   else if(mood==='blush') q.push([4,6,1,1,Wh],[5,7,1,1,Wh],[6,6,1,1,Wh],[11,6,1,1,Wh],[12,7,1,1,Wh],[13,6,1,1,Wh],[2,8,2,2,'#ff8ab0'],[14,8,2,2,'#ff8ab0'],[8,10,2,1,'#c84a6a']);
   else if(mood==='love'){const R='#ff3a6a';q.push([4,5,1,1,R],[6,5,1,1,R],[4,6,3,1,R],[5,7,1,1,R],[11,5,1,1,R],[13,5,1,1,R],[11,6,3,1,R],[12,7,1,1,R],[7,10,4,1,'#c84a6a'],[3,9,1,1,'#ff9ab0'],[14,9,1,1,'#ff9ab0']);}
+  else if(mood==='sad'){const tr=Math.floor(t*3)%3;q.push([5,7,1,1,Wh],[12,7,1,1,Wh],[7,10,1,1,K],[8,9,2,1,K],[10,10,1,1,K],[5,8+tr,1,1,'#7ac8ff'],[12,8+(tr+1)%3,1,1,'#7ac8ff']);}
   else q.push([5,6,1,1,Wh],[12,5,1,1,Wh],[7,10,1,1,K],[8,9,1,1,K],[9,10,1,1,K],[10,9,1,1,K]);
   sprite(g,ox,oy,p,q,'#0e0c14',false,18);
   if(mood!=='laugh'){const bx=ox-1,by=oy+5;   // bambú en la mano
@@ -1406,6 +1492,19 @@ function startGame(){
 /* =====================================================================
    BUCLE PRINCIPAL
    ===================================================================== */
+const dc=(x,y,c1,c2)=>({k:'dc',x,y,c1,c2}), muela=(x,y)=>({k:'tooth',x,y});
+const DECOR={
+  sala1:[dc(105,3,'#ff9ac8','#ffd23a'),dc(293,4,'#9ad8ff','#ff9ac8'),muela(236,92),muela(60,176)],
+  sala2:[dc(89,9,'#ff9ac8','#9ad8ff'),dc(230,9,'#ffd23a','#ff9ac8'),muela(28,104),muela(282,150)],
+  sala3:[dc(124,6,'#ffd23a','#ff6a8a'),dc(196,6,'#ff6a8a','#ffd23a'),muela(56,140)],
+  sala4:[dc(204,70,'#ff9ac8','#ffd23a'),muela(44,94),muela(140,198)],
+  sala5:[dc(72,108,'#ff9ac8','#9ad8ff'),dc(248,108,'#ffd23a','#c87aff'),muela(122,150),muela(196,168)],
+  sala6:[dc(78,72,'#c8a0ff','#7ac8ff'),dc(244,88,'#ff9ad8','#fff3a0'),muela(52,150),muela(262,178)],
+  sala7:[dc(24,78,'#ff9ad8','#7ae8ff'),dc(296,78,'#7ae8ff','#ff9ad8'),muela(68,124),muela(240,126)],
+  sala8:[dc(24,78,'#ff9ad8','#7ae8ff'),dc(296,78,'#7ae8ff','#ff9ad8'),muela(68,124),muela(240,126)],
+  loop:[dc(116,4,'#ff9ac8','#c8a0ff'),dc(203,4,'#c8a0ff','#ff9ac8'),muela(36,184),muela(282,180)],
+  dead:[dc(100,4,'#ff9ac8','#9ad8ff'),muela(68,124)]
+};
 function update(dt){
   T+=dt;
   Dialog.update(dt);
@@ -1427,6 +1526,7 @@ function render(){
     g.drawImage(rm.bg,0,0);
     if(d.back) d.back(g,T,rm);
     g.drawImage(rm.doorLayer,0,0);
+    if(DECOR[rm.id]) drawDecor(g,DECOR[rm.id],T);
     if(d.anim) d.anim(g,T,rm);
     const list=rm.statics.slice();
     for(const w of rm.walkers) list.push({y:w.py,draw:gg=>drawWalker(gg,w)});
