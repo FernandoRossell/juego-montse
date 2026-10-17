@@ -3,9 +3,28 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<title>Doctor's Shift: Night Quest</title>
-<meta name="description" content="Doctor's Shift: Night Quest — un pequeño RPG indie retro de 8 bits sobre un turno nocturno muy especial.">
+<title>Molar Quest: La Última Cita</title>
+<meta name="description" content="Molar Quest: La Última Cita — un pequeño RPG indie retro de 8 bits sobre la última cita del día en el consultorio dental.">
 <meta name="theme-color" content="#120a24">
+<!-- Vista previa al compartir el link (WhatsApp, Telegram, etc.) -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Molar Quest">
+<meta property="og:title" content="Molar Quest: La Última Cita">
+<meta property="og:description" content="Un pequeño RPG retro de 8 bits sobre la última cita del día en el consultorio dental. ¡Toca JUGAR!">
+<meta property="og:url" content="https://fernandorossell.github.io/juego-montse/">
+<meta property="og:image" content="https://fernandorossell.github.io/juego-montse/preview.png">
+<meta property="og:image:secure_url" content="https://fernandorossell.github.io/juego-montse/preview.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Molar Quest: una dentista pixel art camina hacia una clínica dental de noche">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" href="icon.png">
+<link rel="apple-touch-icon" href="icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Molar Quest">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
@@ -40,8 +59,14 @@ body.touch.landscape #app{grid-template-columns:auto auto auto;grid-template-are
 #bezelTop .led{width:7px;height:7px;border-radius:50%;background:#ff3a5a;box-shadow:0 0 6px #ff3a5a}
 #bezelTop .brand{flex:1}
 #bezelTop .brand i{color:#ff7ab0;font-style:italic}
-#btnMute{font-family:inherit;font-size:8px;background:#2c2342;color:#d8d0ff;border:none;border-radius:4px;padding:4px 6px;cursor:pointer}
+#btnMute,#btnFull{font-family:inherit;font-size:8px;background:#2c2342;color:#d8d0ff;border:none;border-radius:4px;padding:4px 6px;cursor:pointer}
 #btnMute.off{color:#6a6290;text-decoration:line-through}
+#btnFull{display:flex;align-items:center;gap:5px;padding:3px 6px}
+#btnFull svg{width:10px;height:10px;display:block}
+#btnFull .ex{display:none}
+#btnFull.on .en{display:none}
+#btnFull.on .ex{display:block}
+#btnMute:focus-visible,#btnFull:focus-visible,#btnPlay:focus-visible{outline:2px solid #ffd23a;outline-offset:2px}
 #screenWrap{display:flex;flex-direction:column;align-items:center}
 #screen{position:relative;width:calc(320px * var(--s));height:calc(240px * var(--s));overflow:hidden;background:#000;border-radius:2px;box-shadow:0 0 0 2px #000}
 canvas{display:block;width:100%;height:100%;image-rendering:pixelated;image-rendering:crisp-edges}
@@ -71,7 +96,7 @@ canvas{display:block;width:100%;height:100%;image-rendering:pixelated;image-rend
   border-left:6px solid transparent;border-right:6px solid transparent;border-top:8px solid #e83a6a;animation:bob .5s steps(2) infinite}
 @keyframes bob{50%{transform:translateY(3px)}}
 #menuUI{position:absolute;left:0;right:0;top:61%;display:flex;justify-content:center;z-index:4}
-#btnPlay{font-family:inherit;font-size:max(12px,min(calc(var(--s) * 9px),26px));padding:.75em 1.6em;letter-spacing:3px;
+#btnPlay{font-family:inherit;font-size:max(11px,min(calc(var(--s) * 8.5px),26px));padding:.7em 1.4em;letter-spacing:3px;
   background:#ffd23a;color:#3a1a00;border:none;cursor:pointer;
   box-shadow:0 0 0 3px #3a1a00,0 0 0 6px #ffd23a,0 0 0 9px #3a1a00,0 7px 0 9px #000;animation:blink 1.1s steps(1) infinite}
 #btnPlay:hover{background:#fff07a}
@@ -113,10 +138,12 @@ body.touch.landscape #ctrlR{padding-right:4px}
 </head>
 <body>
 <main id="app">
-  <h1 class="sr-only">Doctor's Shift: Night Quest</h1>
+  <h1 class="sr-only">Molar Quest: La Última Cita</h1>
   <section id="console" aria-label="Consola">
     <div id="bezel">
-      <div id="bezelTop"><span class="led"></span><span class="brand">NIGHT QUEST <i>COLOR</i></span><button id="btnMute" title="Sonido">&#9835; ON</button></div>
+      <div id="bezelTop"><span class="led"></span><span class="brand">MOLAR QUEST <i>COLOR</i></span>
+        <button id="btnFull" title="Pantalla completa" aria-label="Pantalla completa"><svg viewBox="0 0 10 10" fill="currentColor" aria-hidden="true"><path class="en" d="M0 0h4v1.5H1.5V4H0zM6 0h4v4H8.5V1.5H6zM0 6h1.5v2.5H4V10H0zM8.5 6H10v4H6V8.5h2.5z"/><path class="ex" d="M2.5 0H4v4H0V2.5h2.5zM6 0h1.5v2.5H10V4H6zM0 6h4v4H2.5V7.5H0zM6 6h4v1.5H7.5V10H6z"/></svg>FULL</button>
+        <button id="btnMute" title="Sonido">&#9835; ON</button></div>
       <div id="screenWrap">
         <div id="panel" class="pkbox hidden"></div>
         <div id="screen">
@@ -179,6 +206,15 @@ function heart(g,x,y,s=1,c='#ff4d7a',ol='#6a0f2a',hl='#ffc8d8'){x=Math.round(x);
   drawPattern(g,HEART,x,y,s,c); g.fillStyle=hl; g.fillRect(x+s,y+s,s,s);}
 function miniHeart(g,x,y,c='#ff5a8a'){drawPattern(g,MINIH,x,y,1,c);}
 function floatHeart(g,x,y,t,ph=0){heart(g,x,y+Math.round(Math.sin(t*3+ph)*2),1);}
+const TOOTH=['.1111..1111.','111111111111','111111111111','111111111111','111111111111','.1111111111.','.1111111111.','..11111111..','..111..111..','..11....11..','...1....1...'];
+const TOOTH_SH=['............','..........1.','...........1','...........1','..........11','.........11.','.........11.','.........1..','........11..','.........1..','............'];
+function tooth(g,x,y,s=1,face=false){x=Math.round(x);y=Math.round(y);
+  for(const [a,b] of [[-1,0],[1,0],[0,-1],[0,1]]) drawPattern(g,TOOTH,x+a*s,y+b*s,s,'#1a3a4a');
+  drawPattern(g,TOOTH,x,y,s,'#ffffff'); drawPattern(g,TOOTH_SH,x,y,s,'#bfe0f0'); rect(g,x+2*s,y+s,s,2*s,'#ffffff');
+  rect(g,x+s,y+s,s,s,'#e8f8ff');
+  if(face){rect(g,x+3*s,y+4*s,s,2*s,'#1a2a3a');rect(g,x+8*s,y+4*s,s,2*s,'#1a2a3a');
+    rect(g,x+4*s,y+7*s,4*s,s,'#1a2a3a');rect(g,x+3*s,y+6*s,s,s,'#1a2a3a');rect(g,x+8*s,y+6*s,s,s,'#1a2a3a');
+    rect(g,x+2*s,y+6*s,s,s,'#ffaac4');rect(g,x+9*s,y+6*s,s,s,'#ffaac4');}}
 
 /* =====================================================================
    SPRITES (pixel art generado por código con contorno automático)
@@ -633,7 +669,7 @@ ROOMS.sala1={
   },
   top(g,t){floatHeart(g,60,46,t);},
   emit(dt){if(Math.random()<dt*0.7)spawnP({type:'heart',x:150+Math.random()*20,y:128,vy:-10,vx:(Math.random()-0.5)*6,life:2.6,max:2.6,c:'#ff6a9a'});},
-  enter(){Dialog.open(['Tu turno de esta noche por fin terminó...','Pero esta no es una noche cualquiera.',...MSG_INTRO,'(Camina hacia la puerta de arriba para continuar.)']);}
+  enter(){Dialog.open(['Tu última cita del día por fin terminó...','Pero esta no es una noche cualquiera.',...MSG_INTRO,'(Camina hacia la puerta de arriba para continuar.)']);}
 };
 
 /* ---------- SALA 2: Pista de hielo ---------- */
@@ -692,7 +728,7 @@ ROOMS.sala2={
 /* ---------- SALA 3: Cena elegante ---------- */
 const TABLES3=[[4,5],[10,5],[15,5],[4,11],[10,11],[15,11]];
 const TALK3=[['¡Este lugar es tan romántico!','Nuestra primera cita también fue en un restaurante... <3'],['¿Ya pidieron el postre?','Nosotros vamos a compartir uno.'],
-  ['Shhh... él me va a pedir matrimonio. <3'],['Llevamos 10 años viniendo aquí.','Siempre pedimos lo mismo.'],['Qué bonita noche, ¿no crees?'],['Esa doctora se ve muy feliz hoy...']];
+  ['Shhh... él me va a pedir matrimonio. <3'],['Llevamos 10 años viniendo aquí.','Siempre pedimos lo mismo.'],['Qué bonita noche, ¿no crees?'],['Esa dentista se ve muy feliz hoy...','Seguro sabe la respuesta.']];
 ROOMS.sala3={
   wallRows:3, spawn:{x:9,y:13,dir:1}, tint:'#dcaaa0',
   panel:()=>qPanel('sala3'),
@@ -998,46 +1034,125 @@ ROOMS.loop={
     else Dialog.open([LOOP_WORDS[lv]]);}
 };
 
-/* ---------- SALAS SIN SALIDA ---------- */
-const DEAD_PAL={dog:['#bfe8d8','#9ad0bc','#e8fff6','#d0f4e6'],laugh:['#ffe9a0','#f0d070','#fff8d8','#fff0b8'],blush:['#ffd0e0','#f0a8c4','#fff0f6','#ffe2ec'],love:['#e0d0ff','#c0a8f0','#f6f0ff','#ece2ff']};
+/* ---------- SALAS SIN SALIDA (cuartito acogedor con perrito y panda) ---------- */
+const DEAD_PAL={
+  dog:  {wall:'#d4f0e6',pat:'#b4e2d2',rug:'#8fd0c0',rugB:'#4a9a88',rugL:'#bfe8dc',cur:'#4a9a88'},
+  laugh:{wall:'#fff2c0',pat:'#f6dc84',rug:'#ffc85a',rugB:'#d08a2a',rugL:'#ffe0a0',cur:'#e8963a'},
+  blush:{wall:'#ffe4ee',pat:'#ffc8dc',rug:'#ff9ac0',rugB:'#d0608a',rugL:'#ffc8dc',cur:'#e86a9a'},
+  love: {wall:'#eee6ff',pat:'#dacafa',rug:'#c0a0f0',rugB:'#8a68c8',rugL:'#dccafa',cur:'#9a7ad8'}
+};
+const DEAD_TALK={
+  dog:['Perrito: ¿Guau?','Panda: *deja de masticar su bambú y te mira confundido*'],
+  laugh:['Perrito: ¡Guau guau! *se ríe*','Panda: JAJAJA *se revuelca de la risa*'],
+  blush:['Perrito: ¡Guau! <3','Panda: *se tapa la carita, todo sonrojado*'],
+  love:['Perrito: ¡Guau! <3','Panda: *suspira enamorado*']
+};
+const PET_MOOD={dog:'confused',laugh:'laugh',blush:'blush',love:'love'};
+function drawPanda(g,x,y,mood,t){
+  const K='#24222c',Wh='#ffffff';
+  let ox=Math.round(x),oy=Math.round(y);
+  if(mood==='laugh') ox+=Math.sin(t*22)>0?1:0; else oy+=Math.sin(t*2.2)>0.6?-1:0;
+  const scratch=mood==='confused'&&Math.sin(t*2.5)>0;
+  const p=[[2,0,4,4,K],[12,0,4,4,K],[2,2,14,10,Wh],[3,11,12,8,Wh],[3,17,5,4,K],[10,17,5,4,K],[1,12,4,5,K]];
+  p.push(scratch?[14,4,3,9,K]:[13,12,4,5,K]);
+  const q=[[3,1,2,2,'#4a4656'],[13,1,2,2,'#4a4656'],[5,13,8,5,'#eef0f6'],[4,19,3,1,'#ff9ab0'],[11,19,3,1,'#ff9ab0'],[4,5,3,3,K],[11,5,3,3,K],[8,8,2,1,K]];
+  if(mood==='laugh') q.push([4,6,1,1,Wh],[5,5,1,1,Wh],[6,6,1,1,Wh],[11,6,1,1,Wh],[12,5,1,1,Wh],[13,6,1,1,Wh],[7,9,4,3,'#7a1a2a'],[8,11,2,1,'#ff7a9a'],[2,7,1,2,'#7ac8ff'],[15,7,1,2,'#7ac8ff']);
+  else if(mood==='blush') q.push([4,6,1,1,Wh],[5,7,1,1,Wh],[6,6,1,1,Wh],[11,6,1,1,Wh],[12,7,1,1,Wh],[13,6,1,1,Wh],[2,8,2,2,'#ff8ab0'],[14,8,2,2,'#ff8ab0'],[8,10,2,1,'#c84a6a']);
+  else if(mood==='love'){const R='#ff3a6a';q.push([4,5,1,1,R],[6,5,1,1,R],[4,6,3,1,R],[5,7,1,1,R],[11,5,1,1,R],[13,5,1,1,R],[11,6,3,1,R],[12,7,1,1,R],[7,10,4,1,'#c84a6a'],[3,9,1,1,'#ff9ab0'],[14,9,1,1,'#ff9ab0']);}
+  else q.push([5,6,1,1,Wh],[12,5,1,1,Wh],[7,10,1,1,K],[8,9,1,1,K],[9,10,1,1,K],[10,9,1,1,K]);
+  sprite(g,ox,oy,p,q,'#0e0c14',false,18);
+  if(mood!=='laugh'){const bx=ox-1,by=oy+5;   // bambú en la mano
+    rect(g,bx-1,by-1,4,15,'#0e0c14');rect(g,bx,by,2,13,'#6ac04a');rect(g,bx,by,1,13,'#9ae07a');rect(g,bx,by+4,2,1,'#3a8a2a');rect(g,bx,by+9,2,1,'#3a8a2a');
+    rect(g,bx-3,by-2,3,2,'#4aa83a');rect(g,bx+2,by-3,3,2,'#5ab84a');}
+}
+function bubble(g,x,y,w,h){
+  rect(g,x-1,y-1,w+2,h+2,'#3a2050'); rect(g,x,y,w,h,'#ffffff');
+  rect(g,x+3,y+h,4,2,'#3a2050'); rect(g,x+4,y+h,2,1,'#ffffff'); rect(g,x+4,y+h+2,2,1,'#3a2050');
+}
 ROOMS.dead={
-  wallRows:3, spawn:{x:9,y:5,dir:0}, tint:null,
+  wallRows:3, spawn:{x:9,y:4,dir:0}, tint:null,
   panel:(rm,o)=>({title:'Sin salida...',q:o.msg,hint:'Regresa por la puerta de abajo.'}),
   setup(R,rm,o){
-    R.solid(1,3,3,11); R.solid(16,3,3,11);
+    const mood=PET_MOOD[o.v]||'confused';
     R.door({c:9,bottom:true,label:'REGRESAR',target:o.back,args:{fromDead:true}});
-    R.solid(12,6); R.interact(12,6,1,1,()=>Dialog.open([o.v==='laugh'?'¡Jajaja! ¡Guau guau!':o.v==='love'||o.v==='blush'?'¡Guau! <3':'¿Guau?']));
-    R.static(6*16,(g,t)=>drawDog(g,192,96,o.v==='dog'?'confused':o.v,t));
-    R.solid(5,12,2,1); R.solid(14,4);
+    R.solid(8,7,4,1); R.interact(8,7,4,1,()=>Dialog.open(DEAD_TALK[o.v]||DEAD_TALK.dog));
+    R.static(127,(g,t)=>{drawDog(g,135,112,mood,t);drawPanda(g,161,107,mood,t);});
+    R.solid(1,3,2,1); R.interact(1,3,2,1,()=>Dialog.open(['(Bambú fresquito. El snack favorito del panda.)']));
+    R.solid(16,3,2,1); R.interact(16,3,2,1,()=>Dialog.open(['(Libros: "Odontología con amor", "Sonrisas brillantes" y un álbum lleno de fotos bonitas.)','(En la repisa de abajo hay una muelita de peluche.)']));
+    R.solid(1,12,3,1); R.interact(1,12,3,1,()=>Dialog.open(['(La camita del perrito y el panda. Lo comparten todo.)']));
+    R.solid(18,11,1,3); R.solid(16,12);
+    R.light(296,176,26,'rgba(255,220,150,0.35)',1);
   },
   bg(g,rm,o){
-    const P=DEAD_PAL[o.v]||DEAD_PAL.dog;
-    rect(g,0,0,320,240,'#1a1228');
-    for(let y=0;y<240;y+=8)for(let x=0;x<320;x+=8) if(((x+y)/8)%3===0) rect(g,x+3,y+3,2,2,'#2a1e3e');
-    rect(g,64,0,192,48,P[1]); for(let x=64;x<256;x+=8) rect(g,x,6,3,30,P[0]);
-    rect(g,64,0,192,4,'#5a4a6a'); rect(g,64,36,192,12,'#8a7a9a'); rect(g,64,36,192,2,'#5a4a6a'); rect(g,64,46,192,2,'#3a2a4a');
-    plaque(g,160,14,'SIN SALIDA',{bg:'#ffffff',fg:'#c8204a',sh:'#e0e0e0'});
-    txt(g,'?',84,16,16,'#ffffff',{outline:'#5a4a6a'}); txt(g,'?',220,16,16,'#ffffff',{outline:'#5a4a6a'});
-    for(let y=48;y<224;y+=16)for(let x=64;x<256;x+=16) rect(g,x,y,16,16,((x+y)/16)%2?P[2]:P[3]);
-    rect(g,60,48,4,180,'#5a4a6a'); rect(g,256,48,4,180,'#5a4a6a'); rect(g,60,224,200,16,'#5a4a6a'); rect(g,60,224,200,2,'#8a7a9a');
-    pxEllipse(g,96,200,14,6,'#c84a6a'); pxEllipse(g,96,199,11,4,'#ff9ab8');
-    pxCircle(g,232,72,5,'#ff5a5a'); rect(g,228,71,9,1,'#ffffff');
-    pxEllipse(g,200,118,6,2,'#a0a0b0');
-    if(o.v==='laugh'){txt(g,'JAJAJA',96,60,8,'#e8a020');txt(g,'XD',220,200,8,'#e8a020');}
-    if(o.v==='love'||o.v==='blush'){heart(g,100,64,1,'#ff7ab0');heart(g,212,196,1,'#ff7ab0');}
+    const P=DEAD_PAL[o.v]||DEAD_PAL.dog, r=rng(91);
+    // pared con papel tapiz de corazoncitos y zócalo de madera
+    rect(g,0,0,320,48,P.wall);
+    for(let y=6,i=0;y<34;y+=9,i++)for(let x=(i%2)*10+4;x<320;x+=20) miniHeart(g,x,y,P.pat);
+    rect(g,0,0,320,3,P.cur);
+    rect(g,0,34,320,14,'#c89a6a'); rect(g,0,34,320,2,'#e8c08a'); for(let x=0;x<320;x+=16) rect(g,x+2,38,12,6,'#b4844f'); rect(g,0,46,320,2,'#8a5a32');
+    // ventana con noche estrellada y cortinas
+    const wx=32;
+    rect(g,wx-1,5,50,30,'#8a5a32'); rect(g,wx+1,7,46,26,'#1c2a5a'); rect(g,wx+1,25,46,8,'#2a3a6a');
+    for(let i=0;i<10;i++) rect(g,wx+3+Math.floor(r()*42),9+Math.floor(r()*14),1,1,'#ffffff');
+    pxCircle(g,wx+36,14,4,'#fff6d0'); pxCircle(g,wx+38,13,3,'#1c2a5a');
+    rect(g,wx+23,7,2,26,'#8a5a32'); rect(g,wx+1,19,46,2,'#8a5a32');
+    rect(g,wx-5,3,8,34,P.cur); rect(g,wx+45,3,8,34,P.cur); rect(g,wx-2,3,1,34,'rgba(0,0,0,.15)'); rect(g,wx+48,3,1,34,'rgba(0,0,0,.15)');
+    rect(g,wx-7,2,64,3,'#6a3a1a');
+    // letrero colgante
+    rect(g,128,2,1,8,'#6a4a2a'); rect(g,191,2,1,8,'#6a4a2a');
+    plaque(g,160,9,'SIN SALIDA',{bg:'#fff8ec',fg:'#c8204a',sh:'#f0dcc0',ol:'#6a3a1a'});
+    // cuadros
+    const frame=(x,y,w,h)=>{rect(g,x-1,y-1,w+2,h+2,'#6a3a1a');rect(g,x,y,w,h,'#c8a050');rect(g,x+2,y+2,w-4,h-4,'#fffaf0');};
+    frame(212,8,20,18);
+    if(o.v==='laugh'){pxCircle(g,222,17,5,'#ffd23a');rect(g,219,15,1,1,'#3a2000');rect(g,224,15,1,1,'#3a2000');rect(g,219,18,6,2,'#7a1a1a');}
+    else if(o.v==='dog') txt(g,'?',218,13,8,'#8a6ac8');
+    else miniHeart(g,220,15,'#e83a6a');
+    frame(238,12,16,14);
+    pxCircle(g,246,21,2,'#5a3a2a'); rect(g,242,16,2,2,'#5a3a2a'); rect(g,245,15,2,2,'#5a3a2a'); rect(g,248,16,2,2,'#5a3a2a');
+    // piso de madera
+    for(let y=48,i=0;y<224;y+=8,i++){rect(g,0,y,320,8,i%2?'#e6c294':'#ecc99c');rect(g,0,y+7,320,1,'#cfa676');
+      for(let x=(i*37)%48;x<320;x+=48) rect(g,x,y,1,7,'#cfa676');}
+    rect(g,0,48,14,176,P.pat); rect(g,14,48,2,176,'#c89a6a'); rect(g,306,48,14,176,P.pat); rect(g,304,48,2,176,'#c89a6a');
+    rect(g,0,224,320,16,'#c89a6a'); rect(g,0,224,320,2,'#e8c08a');
+    // alfombra redonda
+    pxEllipse(g,158,123,64,27,P.rugB); pxEllipse(g,158,122,61,25,P.rug); pxEllipse(g,158,122,52,19,P.rugL); pxEllipse(g,158,122,49,17,P.rug);
+    for(let k=0;k<28;k++){const a=k/28*Math.PI*2;rect(g,158+Math.cos(a)*56,122+Math.sin(a)*22,2,1,'#ffffff');}
+    // bambú en maceta
+    for(const [sx,h] of [[22,40],[28,48],[34,36],[39,44]]){const top=60-h;
+      rect(g,sx-1,top-1,4,h+1,'#2a5a1a'); rect(g,sx,top,2,h,'#7ac85a'); rect(g,sx,top,1,h,'#a8e88a');
+      for(let yy=top+6;yy<60;yy+=8) rect(g,sx-1,yy,4,1,'#3a7a2a');
+      rect(g,sx+2,top+4,5,2,'#5ab84a'); rect(g,sx-5,top+10,5,2,'#4aa83a');}
+    rect(g,19,53,22,12,'#5a2a1a'); rect(g,20,54,20,10,'#c86a3a'); rect(g,20,54,20,2,'#e88a5a'); rect(g,22,58,16,1,'#a85428');
+    // librero con muelita de peluche
+    rect(g,257,19,32,46,'#3a1e0e'); rect(g,258,20,30,44,'#8a5230');
+    for(let s=0;s<3;s++){const sy=22+s*14; rect(g,259,sy,28,11,'#5e3018');
+      for(let b=0;b<6;b++){if(s>0&&b>3)continue;const sh=b%3===1?1:0;rect(g,260+b*4,sy+2+sh,3,9-sh,['#e8506a','#3a8ad8','#ffd23a','#5ac88a','#c87aff','#ffffff'][(b+s*2)%6]);}
+      rect(g,258,sy+11,30,2,'#a86a40');}
+    rect(g,278,40,7,6,'#c86a3a'); pxCircle(g,281,37,3,'#4aa83a'); flower(g,281,35,'#ff7ab0');
+    tooth(g,275,52,1,false);
+    // camita de las mascotas con huesito
+    pxEllipse(g,40,202,22,9,'#5a3a6a'); pxEllipse(g,40,201,20,8,P.cur); pxEllipse(g,40,202,14,5,P.rugL);
+    rect(g,34,200,10,2,'#ffffff'); rect(g,32,199,3,4,'#ffffff'); rect(g,43,199,3,4,'#ffffff');
+    // platitos: croquetas y hojitas de bambú
+    const bowl=(x,y,c)=>{pxEllipse(g,x,y+2,8,3,'#3a2a2a');pxEllipse(g,x,y+1,7,3,c);pxEllipse(g,x,y,5,2,'#5a3a2a');};
+    bowl(96,162,'#e8506a'); for(const [a,b] of [[-3,-1],[0,0],[2,-1],[-1,1]]) rect(g,96+a,162+b,2,1,'#c8844a');
+    bowl(222,162,'#4aa8a0'); rect(g,218,158,8,2,'#5ab84a'); rect(g,221,155,2,6,'#7ac85a');
+    // pelotita
+    pxCircle(g,236,192,4,'#ff6a6a'); rect(g,232,191,9,2,'#ffffff');
+    // plantita y lámpara de pie
+    rect(g,259,200,10,8,'#c86a3a'); rect(g,259,200,10,2,'#e88a5a'); pxCircle(g,264,195,6,'#3a8a3a'); pxCircle(g,262,193,3,'#5ab84a'); flower(g,267,192,'#ff7ab0');
+    rect(g,292,210,10,3,'#3a2a1a'); rect(g,296,182,2,28,'#3a2a1a'); rect(g,289,170,16,12,'#2a1a10'); rect(g,290,171,14,10,'#ffe2a0'); rect(g,290,171,14,2,'#fff6d0');
   },
-  anim(g,t,rm){
-    const o=rm.opts;
-    if(o.v==='dog'){const y=74+Math.round(Math.sin(t*3)*2);rect(g,203,y,12,12,'#3a2050');rect(g,204,y+1,10,10,'#ffffff');rect(g,206,y+12,3,2,'#3a2050');txt(g,'?',205,y+2,8,'#c8204a');}
-    if(o.v==='laugh'){for(const [x,y0,ph] of [[86,110,0],[234,150,1.5],[90,180,3]]){const y=y0-Math.abs(Math.sin(t*4+ph))*8;
-      pxCircle(g,x,y,7,'#7a4a00');pxCircle(g,x,y,6,'#ffd23a');rect(g,x-4,y-2,1,1,'#3a2000');rect(g,x-3,y-3,1,1,'#3a2000');rect(g,x-2,y-2,1,1,'#3a2000');
-      rect(g,x+2,y-2,1,1,'#3a2000');rect(g,x+3,y-3,1,1,'#3a2000');rect(g,x+4,y-2,1,1,'#3a2000');rect(g,x-3,y+1,7,3,'#7a1a1a');rect(g,x-1,y+3,3,1,'#ff7a9a');
-      rect(g,x-7,y-1,1,2,'#7ac8ff');rect(g,x+7,y-1,1,2,'#7ac8ff');}}
+  anim(g,t){if(Math.sin(t*3)>0.5){rect(g,40,12,1,3,'#ffffff');rect(g,39,13,3,1,'#ffffff');}},
+  top(g,t,rm){const v=rm.opts.v,b=Math.round(Math.sin(t*3)*1.5);
+    if(v==='dog'){bubble(g,134,90+b,11,11);txt(g,'?',136,92+b,8,'#c8204a');bubble(g,170,82-b,11,11);txt(g,'?',172,84-b,8,'#8a6ac8');}
+    else if(v==='laugh'){bubble(g,170,82+b,36,12);txt(g,'JAJA',172,84+b,8,'#e8a020');}
+    else {bubble(g,172,82+b,13,11);miniHeart(g,176,86+b,'#ff3a6a');floatHeart(g,139,96,t);}
   },
   emit(dt,rm){const v=rm.opts.v;
-    if(v==='laugh'&&Math.random()<dt*1.5)spawnP({type:'ja',x:80+Math.random()*150,y:200,vy:-18,life:2.5,max:2.5,c:'#ffd23a'});
-    else if((v==='love'||v==='blush')&&Math.random()<dt*2)spawnP({type:'heart',x:80+Math.random()*160,y:210,vy:-14,life:3,max:3,c:'#ff7ab0'});
-    else if(v==='dog'&&Math.random()<dt*1.2)spawnP({type:'q',x:80+Math.random()*160,y:210,vy:-14,life:3,max:3,c:'#8a6ac8'});},
+    if(v==='laugh'&&Math.random()<dt*1.2)spawnP({type:'ja',x:50+Math.random()*210,y:215,vy:-18,life:2.5,max:2.5,c:'#ffd23a'});
+    else if((v==='love'||v==='blush')&&Math.random()<dt*1.5)spawnP({type:'heart',x:50+Math.random()*220,y:215,vy:-14,life:3,max:3,c:'#ff7ab0'});
+    else if(v==='dog'&&Math.random()<dt*0.8)spawnP({type:'q',x:50+Math.random()*220,y:215,vy:-14,life:3,max:3,c:'#8a6ac8'});},
   enter(rm,o){Dialog.open([o.msg,'(Regresa por la puerta de abajo e inténtalo otra vez.)']);}
 };
 
@@ -1235,32 +1350,54 @@ function updatePlayer(dt){
 /* =====================================================================
    MENÚ PRINCIPAL (camuflaje)
    ===================================================================== */
-const MENU_STARS=mkStars(70,0,0,320,120,3);
+const MENU_STARS=mkStars(90,0,0,400,120,3);
 const MENU_WIN=(()=>{const r=rng(9),a=[];for(let i=0;i<20;i++)a.push(r());return a;})();
-function drawMenu(g,t){
-  skyBand(g,200,['#0a0620','#100a2c','#160e38','#1c1244','#22164e','#281a58','#2e1e60','#34226a']);
+/* w permite dibujar la portada más ancha (imagen de vista previa para WhatsApp) */
+function drawMenu(g,t,w=W){
+  const o=Math.round((w-W)/2);
+  const sky=['#0a0620','#100a2c','#160e38','#1c1244','#22164e','#281a58','#2e1e60','#34226a'];
+  sky.forEach((c,i)=>rect(g,0,i*25,w,26,c));
   drawStars(g,MENU_STARS,t);
-  pxCircle(g,46,40,10,'#fff2c8'); pxCircle(g,50,37,9,'#100a2c');
-  for(let x=-4;x<330;x+=18){const h=20+((x*37)%30);rect(g,x,200-h,16,h,'#140e2a');for(let k=0;k<3;k++)if(((x+k*7)%5)===0)rect(g,x+3+k*4,200-h+6,2,2,'#ffd86a');}
-  rect(g,190,100,112,100,'#1a1430'); rect(g,192,102,108,98,'#d8d4ec'); rect(g,192,102,108,4,'#a8a4c8');
-  for(let i=0;i<5;i++)for(let j=0;j<4;j++){const on=MENU_WIN[(i*4+j)%20]>0.35!==(Math.floor(t*0.5+i+j*2)%7===0);rect(g,198+i*20,112+j*18,12,10,on?'#ffe27a':'#4a4a6a');}
-  rect(g,234,180,24,20,'#5a7aa8'); rect(g,245,180,2,20,'#3a4a6a');
-  rect(g,226,82,40,20,'#ffffff'); rect(g,226,82,40,1,'#ccc'); rect(g,242,85,8,14,'#e8304a'); rect(g,239,88,14,8,'#e8304a');
-  txt(g,'H',290,90,8,'#ffffff');
-  rect(g,0,200,320,40,'#2a2838'); rect(g,0,200,320,2,'#4a4858'); for(let x=0;x<320;x+=24) rect(g,(x-t*30%24+24)%344-24,219,12,2,'#e8e0a0');
-  const ax=96; rect(g,ax,186,44,16,'#f4f4f4'); rect(g,ax+30,180,14,8,'#f4f4f4'); rect(g,ax+31,181,10,6,'#7ac8ff'); rect(g,ax,193,44,3,'#e8304a');
-  rect(g,ax+12,187,6,2,'#e8304a'); rect(g,ax+14,185,2,6,'#e8304a'); pxCircle(g,ax+8,202,3,'#222'); pxCircle(g,ax+36,202,3,'#222');
-  const sir=Math.floor(t*4)%2; rect(g,ax+33,177,4,3,sir?'#ff3a3a':'#3a7aff'); rect(g,ax+38,177,4,3,sir?'#3a7aff':'#ff3a3a');
-  g.globalCompositeOperation='lighter'; g.fillStyle=sir?'rgba(255,60,60,0.15)':'rgba(60,120,255,0.15)'; g.fillRect(ax+20,160,40,40); g.globalCompositeOperation='source-over';
-  drawPerson(g,60,186,3,(Math.floor(t*4)%2)?1:2,GIRL);
+  pxCircle(g,o+46,40,10,'#fff2c8'); pxCircle(g,o+50,37,9,'#100a2c');
+  for(let x=-4;x<w+10;x+=18){const h=20+((Math.abs(x-o)*37)%30);rect(g,x,200-h,16,h,'#140e2a');for(let k=0;k<3;k++)if(((Math.abs(x-o)+k*7)%5)===0)rect(g,x+3+k*4,200-h+6,2,2,'#ffd86a');}
+  // clínica dental
+  const bx=o+190;
+  rect(g,bx,100,112,100,'#10283a'); rect(g,bx+2,102,108,98,'#e4f4f2'); rect(g,bx+2,102,108,5,'#7ac8c0'); rect(g,bx+2,107,108,1,'#5aa8a0');
+  for(let i=0;i<5;i++)for(let j=0;j<3;j++){const on=MENU_WIN[(i*3+j)%20]>0.35!==(Math.floor(t*0.5+i+j*2)%7===0);
+    rect(g,bx+7+i*20,113+j*18,14,12,'#5aa8a0'); rect(g,bx+8+i*20,114+j*18,12,10,on?'#ffe27a':'#3a4a6a'); if(on) rect(g,bx+9+i*20,115+j*18,3,3,'#fff6c0');}
+  rect(g,bx+30,167,52,11,'#2a7a72'); rect(g,bx+30,167,52,1,'#5ac8b8'); txt(g,'DENTAL',bx+32,169,8,'#ffffff');
+  rect(g,bx+43,180,26,20,'#2a5a6a'); rect(g,bx+44,181,11,19,'#8ad0f0'); rect(g,bx+57,181,11,19,'#8ad0f0'); rect(g,bx+45,182,2,8,'#d8f4ff'); rect(g,bx+58,182,2,8,'#d8f4ff');
+  rect(g,bx+38,198,36,2,'#7ac8c0');
+  // letrero de muela en el techo
+  tooth(g,bx+44,79,2,true);
+  if(Math.sin(t*4)>0.3){rect(g,bx+71,80,1,5,'#ffffff');rect(g,bx+69,82,5,1,'#ffffff');}
+  if(Math.sin(t*4+2)>0.5){rect(g,bx+38,90,1,3,'#bfe8ff');rect(g,bx+37,91,3,1,'#bfe8ff');}
+  // calle
+  rect(g,0,200,w,40,'#2a2838'); rect(g,0,200,w,2,'#4a4858'); for(let x=-24;x<w+24;x+=24) rect(g,x+24-(t*30%24),219,12,2,'#e8e0a0');
+  // la dentista y su muelita mascota
+  drawPerson(g,o+34,186,3,(Math.floor(t*4)%2)?1:2,GIRL);
+  const hop=Math.round(Math.abs(Math.sin(t*5))*3);
+  rect(g,o+64,200,12,2,'rgba(0,0,0,0.3)'); tooth(g,o+58,177-hop,2,true);
+  if(Math.floor(t*2)%2) {rect(g,o+85,176,1,3,'#fff6a0');rect(g,o+84,177,3,1,'#fff6a0');}
   const bob=Math.round(Math.sin(t*2)*2);
-  txt(g,"DOCTOR'S SHIFT",160,24+bob,16,'#ffd23a',{align:'center',outline:'#3a1a00',shadow:'#000',sd:3});
-  txt(g,'NIGHT QUEST',160,48+bob,16,'#6ae0ff',{align:'center',outline:'#0a2a4a',shadow:'#000',sd:3});
-  txt(g,'~ UN RPG DE TURNO NOCTURNO ~',160,74,8,'#e0d8ff',{align:'center',shadow:'#000'});
-  txt(g,'(C) 2026 PIXEL WARD STUDIO  v1.0',160,229,8,'#8a84b0',{align:'center'});
+  txt(g,'MOLAR QUEST',o+160,20+bob,16,'#ffd23a',{align:'center',outline:'#3a1a00',shadow:'#000',sd:3});
+  txt(g,'LA ULTIMA CITA',o+160,43+bob,16,'#6ae0ff',{align:'center',outline:'#0a2a4a',shadow:'#000',sd:3});
+  txt(g,'~ UN RPG DE CONSULTORIO DENTAL ~',o+160,67,8,'#e0d8ff',{align:'center',shadow:'#000'});
+  txt(g,'(C) 2026 PIXEL SMILE STUDIO  v1.0',o+160,229,8,'#8a84b0',{align:'center'});
 }
+/* Pantalla completa (Android / PC). iPhone no la permite para páginas web: ahí el botón se oculta. */
+const fsRoot=document.documentElement, btnFull=$('btnFull');
+const fsOK=!!(fsRoot.requestFullscreen||fsRoot.webkitRequestFullscreen)&&document.fullscreenEnabled!==false;
+const isFS=()=>!!(document.fullscreenElement||document.webkitFullscreenElement);
+function enterFS(){try{const p=(fsRoot.requestFullscreen||fsRoot.webkitRequestFullscreen).call(fsRoot,{navigationUI:'hide'});if(p&&p.catch)p.catch(()=>{});}catch(e){}}
+function exitFS(){try{const p=(document.exitFullscreen||document.webkitExitFullscreen).call(document);if(p&&p.catch)p.catch(()=>{});}catch(e){}}
+if(!fsOK) btnFull.classList.add('hidden');
+btnFull.addEventListener('click',e=>{if(isFS())exitFS();else enterFS();e.currentTarget.blur();});
+['fullscreenchange','webkitfullscreenchange'].forEach(ev=>document.addEventListener(ev,()=>{btnFull.classList.toggle('on',isFS());setTimeout(resize,80);}));
+
 function startGame(){
   if(state!=='menu'||trans) return;
+  if(document.body.classList.contains('touch')&&fsOK&&!isFS()) enterFS();
   AudioSys.init(); primeAudio(); SFX.select();
   menuUI.classList.add('hidden');
   trans={phase:'out',t:0,id:'sala1',opts:{},meta:{}};
